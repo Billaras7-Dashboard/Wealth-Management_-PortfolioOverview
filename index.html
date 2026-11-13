@@ -69,12 +69,24 @@
   .kpi-sub.down { color:var(--red); }
 
   /* PERF BADGES */
-  .perf-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:20px; }
-  .perf-badge { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
-  .perf-badge .period { font-size:10px; color:var(--text-muted); margin-bottom:4px; text-transform:uppercase; }
-  .perf-badge .val { font-size:18px; font-weight:700; }
+  .perf-section { margin-bottom:20px; }
+  .perf-group { margin-bottom:12px; }
+  .perf-group-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; padding-left:2px; }
+  .perf-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .perf-grid.two { grid-template-columns:repeat(2,1fr); }
+  .perf-badge {
+    background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px 10px;
+    text-align:center; position:relative; overflow:hidden; transition:border-color .2s;
+  }
+  .perf-badge:hover { border-color:var(--accent); }
+  .perf-badge::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--border); }
+  .perf-badge.up::before { background:var(--green); }
+  .perf-badge.down::before { background:var(--red); }
+  .perf-badge .period { font-size:9px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.8px; font-weight:600; }
+  .perf-badge .val { font-size:17px; font-weight:700; line-height:1; }
   .perf-badge .val.up { color:var(--green); }
   .perf-badge .val.down { color:var(--red); }
+  .perf-badge .val-sub { font-size:9px; color:var(--text-muted); margin-top:3px; }
 
   /* GRIDS */
   .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -168,6 +180,19 @@
 
   /* NOTIFICATION */
   #notification { position:fixed; bottom:20px; right:20px; background:var(--green); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; font-weight:600; display:none; z-index:999; box-shadow:0 4px 20px rgba(0,0,0,0.4); }
+
+  /* PRICES GRID */
+  .prices-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; }
+  .price-card { background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:6px; transition:border-color 0.2s; }
+  .price-card:hover { border-color:var(--accent); }
+  .price-card .pc-ticker { font-size:13px; font-weight:700; color:var(--accent2); }
+  .price-card .pc-name { font-size:11px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .price-card .pc-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .price-card .pc-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; }
+  .price-card .pc-input { background:var(--bg-card); border:1px solid var(--border); color:var(--text-primary); padding:5px 9px; border-radius:5px; width:100px; font-size:13px; font-weight:600; text-align:right; }
+  .price-card .pc-input:focus { outline:none; border-color:var(--accent); background:rgba(59,130,246,0.08); }
+  .price-card .pc-avg { font-size:11px; color:var(--text-muted); }
+  .price-card .pc-pl { font-size:11px; font-weight:600; }
 </style>
 </head>
 <body>
@@ -193,20 +218,22 @@
   </div>
   <div class="header-right">
     <span class="last-updated" id="lastUpdated">Τελευταία ενημέρωση: —</span>
-    <button class="btn-sm" onclick="fetchCryptoPrices()">🔄 Crypto</button>
-    <button class="btn-sm" onclick="fetchUSAPrices()">🇺🇸 USA</button>
-    <button class="btn-update" onclick="saveManualPrices()">💾 Αποθήκευση τιμών</button>
+    <button class="btn-sm" onclick="showTab('prices')">💹 Τιμές</button>
+    <button class="btn-update" onclick="applyAllPrices()">✅ Εφαρμογή τιμών</button>
   </div>
 </div>
 
 <div class="tabs-bar">
   <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+  <button class="tab-btn" onclick="showTab('prices')">💹 Current Prices</button>
   <button class="tab-btn" onclick="showTab('holdings')">📋 Holdings</button>
   <button class="tab-btn" onclick="showTab('transactions')">📝 Transactions</button>
   <button class="tab-btn" onclick="showTab('dividends')">💰 Dividends</button>
   <button class="tab-btn" onclick="showTab('kem')">🤝 KEM (Sofi)</button>
   <button class="tab-btn" onclick="showTab('savings')">🏦 Savings</button>
   <button class="tab-btn" onclick="showTab('allocation')">🎯 Allocation</button>
+  <button class="tab-btn" onclick="showTab('business')">🏪 Επενδύσεις Μαγαζιά</button>
+  <button class="tab-btn" onclick="showTab('realestate')">🏠 Ακίνητα</button>
   <button class="tab-btn" onclick="showTab('strategy')">🏔️ Strategy & FIRE</button>
 </div>
 
@@ -215,15 +242,10 @@
 <!-- ======================== DASHBOARD TAB ======================== -->
 <div id="tab-dashboard" class="tab-content active">
 
-  <div class="manual-panel">
-    <div class="title">⚡ Manual Price Update — Χρηματιστήριο Αθηνών</div>
-    <div class="manual-grid" id="manualPriceGrid"></div>
-  </div>
-
   <div class="kpi-grid">
     <div class="kpi-card green">
       <div class="kpi-label">Συνολική Αξία</div>
-      <div class="kpi-value" id="kpi-total">€142,180</div>
+      <div class="kpi-value" id="kpi-total">€142.180</div>
       <div class="kpi-sub up" id="kpi-pl">Loading...</div>
     </div>
     <div class="kpi-card">
@@ -238,17 +260,17 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Cash & Savings</div>
-      <div class="kpi-value">€42,924</div>
+      <div class="kpi-value">€42.924</div>
       <div class="kpi-sub">5 λογαριασμοί</div>
     </div>
     <div class="kpi-card green">
       <div class="kpi-label">Net Worth (Portfolio)</div>
-      <div class="kpi-value">€177,967</div>
+      <div class="kpi-value">€177.967</div>
       <div class="kpi-sub">Χαρτοφυλάκιο + Cash</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Ετήσια Μερίσματα</div>
-      <div class="kpi-value" id="kpi-divs">~€2,100</div>
+      <div class="kpi-value" id="kpi-divs">~€2.100</div>
       <div class="kpi-sub">Yield: ~1.34%</div>
     </div>
     <div class="kpi-card">
@@ -258,14 +280,30 @@
     </div>
   </div>
 
-  <div class="perf-grid">
-    <div class="perf-badge"><div class="period">1M</div><div class="val up" id="perf1m">+2.1%</div></div>
-    <div class="perf-badge"><div class="period">3M</div><div class="val up" id="perf3m">+6.8%</div></div>
-    <div class="perf-badge"><div class="period">6M</div><div class="val up" id="perf6m">+12.4%</div></div>
-    <div class="perf-badge"><div class="period">YTD</div><div class="val up" id="perfYTD">+28.9%</div></div>
-    <div class="perf-badge"><div class="period">1Y</div><div class="val up" id="perf1y">+36.1%</div></div>
-    <div class="perf-badge"><div class="period">ALL TIME</div><div class="val up">+184.9%</div></div>
-    <div class="perf-badge"><div class="period">XIRR (est.)</div><div class="val up">~22%</div></div>
+  <div class="perf-section">
+    <div class="perf-group">
+      <div class="perf-group-label">📅 Αποδόσεις Περιόδου</div>
+      <div class="perf-grid">
+        <div class="perf-badge up"><div class="period">1 Μήνας</div><div class="val up" id="perf1m">+2,1%</div></div>
+        <div class="perf-badge up"><div class="period">3 Μήνες</div><div class="val up" id="perf3m">+6,8%</div></div>
+        <div class="perf-badge up"><div class="period">6 Μήνες</div><div class="val up" id="perf6m">+12,4%</div></div>
+      </div>
+    </div>
+    <div class="perf-group">
+      <div class="perf-group-label">📆 Αποδόσεις Έτους</div>
+      <div class="perf-grid">
+        <div class="perf-badge up"><div class="period">YTD</div><div class="val up" id="perfYTD">+28,9%</div></div>
+        <div class="perf-badge up"><div class="period">1 Έτος</div><div class="val up" id="perf1y">+36,1%</div></div>
+        <div class="perf-badge up"><div class="period">All Time</div><div class="val up">+184,9%</div></div>
+      </div>
+    </div>
+    <div class="perf-group">
+      <div class="perf-group-label">📊 Σύνθετη Μέτρηση</div>
+      <div class="perf-grid two">
+        <div class="perf-badge up" style="grid-column:span 1"><div class="period">XIRR (εκτ.)</div><div class="val up">~22%</div><div class="val-sub">Ετήσιο</div></div>
+        <div class="perf-badge up" style="grid-column:span 1"><div class="period">Sharpe (εκτ.)</div><div class="val up">1,4</div><div class="val-sub">Risk-adj.</div></div>
+      </div>
+    </div>
   </div>
 
   <div class="two-col">
@@ -287,6 +325,60 @@
         <tbody id="top10Body"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- ======================== CURRENT PRICES TAB ======================== -->
+<div id="tab-prices" class="tab-content">
+  <div class="section-title">💹 Current Prices — Χειροκίνητη Ενημέρωση Τιμών</div>
+
+  <!-- Meta: Date + EUR/USD -->
+  <div class="card" style="border-left:3px solid var(--gold);">
+    <div class="card-title">⚙️ Παράμετροι Ενημέρωσης</div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;">
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Ημερομηνία Ενημέρωσης</label>
+        <input type="date" id="priceDate" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:7px 12px;border-radius:6px;font-size:13px;font-weight:600;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Ισοτιμία EUR/USD</label>
+        <input type="number" id="eurUsdRate" step="0.001" value="1.110" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--gold);padding:7px 12px;border-radius:6px;font-size:14px;font-weight:700;width:110px;" onchange="recalc()">
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn-update" onclick="applyAllPrices()">✅ Εφαρμογή &amp; Ενημέρωση</button>
+      </div>
+      <div id="pricesLastSaved" style="font-size:11px;color:var(--text-muted);margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- Greek Stocks (ΧΑ) -->
+  <div class="card">
+    <div class="card-title">🇬🇷 Ελληνικές Μετοχές — Χρηματιστήριο Αθηνών</div>
+    <div class="prices-grid" id="pgrid-gr"></div>
+  </div>
+
+  <!-- US / Foreign Stocks -->
+  <div class="card">
+    <div class="card-title">🇺🇸 USA &amp; Foreign Stocks (Piraeus / Freedom24) <span style="font-size:11px;color:var(--gold);font-weight:400;text-transform:none;letter-spacing:0;">— Τιμές σε USD $</span></div>
+    <div class="prices-grid" id="pgrid-us"></div>
+  </div>
+
+  <!-- ETFs -->
+  <div class="card">
+    <div class="card-title">📦 ETFs — Trade Republic &amp; Piraeus</div>
+    <div class="prices-grid" id="pgrid-etf"></div>
+  </div>
+
+  <!-- Bonds -->
+  <div class="card">
+    <div class="card-title">🏛️ Ομόλογα (Bonds)</div>
+    <div class="prices-grid" id="pgrid-bond"></div>
+  </div>
+
+  <!-- Crypto -->
+  <div class="card">
+    <div class="card-title">🪙 Crypto (Binance / Bitpanda / Crypto.com)</div>
+    <div class="prices-grid" id="pgrid-crypto"></div>
   </div>
 </div>
 
@@ -346,7 +438,7 @@
   <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
     <div class="kpi-card gold">
       <div class="kpi-label">Σύνολο Μερισμάτων</div>
-      <div class="kpi-value">€1,932</div>
+      <div class="kpi-value">€1.932</div>
       <div class="kpi-sub">Βρυθμός + Ληφθέντα</div>
     </div>
     <div class="kpi-card green">
@@ -392,18 +484,18 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">KEM Αξία</div>
-      <div class="kpi-value" id="kemTotal">€12,518</div>
+      <div class="kpi-value" id="kemTotal">€12.518</div>
       <div class="kpi-sub">Συνολική θέση</div>
     </div>
     <div class="kpi-card green">
       <div class="kpi-label">ΑΒΑΞ (1,450 μτχ)</div>
-      <div class="kpi-value">€5,177</div>
+      <div class="kpi-value">€5.177</div>
       <div class="kpi-sub up">+€145 (+2.9%)</div>
     </div>
     <div class="kpi-card red">
       <div class="kpi-label">ALWN (545 μτχ)</div>
-      <div class="kpi-value">€7,341</div>
-      <div class="kpi-sub down">-€1,341 (-15.4%)</div>
+      <div class="kpi-value">€7.341</div>
+      <div class="kpi-sub down">-€1.341 (-15.4%)</div>
     </div>
     <div class="kpi-card gold">
       <div class="kpi-label">Μερίσματα KEM</div>
@@ -424,18 +516,18 @@
               <td>1,450</td>
               <td>€3.47</td>
               <td><input class="price-input" id="kemABAX" value="3.57" onchange="updateKEM()"></td>
-              <td id="kemABAXVal">€5,177</td>
+              <td id="kemABAXVal">€5.177</td>
               <td id="kemABAXPL" class="up">+€145</td>
               <td id="kemABAXROI" class="up">+2.9%</td>
             </tr>
             <tr>
               <td><span class="ticker gr">ALWN</span></td>
-              <td>Α. Λατσής Ναυτιλία</td>
+              <td>Allwyn Entertainment AG (πρ. ΟΠΑΠ)</td>
               <td>545</td>
               <td>€15.93</td>
               <td><input class="price-input" id="kemALWN" value="13.47" onchange="updateKEM()"></td>
-              <td id="kemALWNVal">€7,341</td>
-              <td id="kemALWNPL" class="down">-€1,343</td>
+              <td id="kemALWNVal">€7.341</td>
+              <td id="kemALWNPL" class="down">-€1.343</td>
               <td id="kemALWNROI" class="down">-15.5%</td>
             </tr>
           </tbody>
@@ -446,9 +538,9 @@
       <div class="card-title">KEM Μερίσματα</div>
       <div class="timeline">
         <div class="tl-item"><div class="tl-date">Ιούλ 2026</div><div class="tl-text">ALWN: €167 μέρισμα (KEM 545μτχ) — NBG Securities</div></div>
-        <div class="tl-item"><div class="tl-date">Ιούλ 2026</div><div class="tl-text">ΑΒΑΞ: €94 μέρισμα (€0.065/μτχ × 1,450)</div></div>
+        <div class="tl-item"><div class="tl-date">Ιούλ 2026</div><div class="tl-text">ΑΒΑΞ: €94 μέρισμα (€0.065/μτχ × 1.450)</div></div>
         <div class="tl-item"><div class="tl-date">Ιούλ 2025</div><div class="tl-text">ALWN: €167 (KEM 545μτχ × €1.45 / 2)</div></div>
-        <div class="tl-item"><div class="tl-date">2025</div><div class="tl-text">ΑΒΑΞ: ~€94 (1,450μτχ × €0.065)</div></div>
+        <div class="tl-item"><div class="tl-date">2025</div><div class="tl-text">ΑΒΑΞ: ~€94 (1.450μτχ × €0.065)</div></div>
       </div>
     </div>
   </div>
@@ -456,7 +548,7 @@
     <div class="card-title">Σημειώσεις KEM</div>
     <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
       <p>📌 Οι θέσεις KEM διαχειρίζονται μέσω <strong>NBG Securities</strong> από κοινού με Sofi.</p>
-      <p>📌 Το ALWN (Α.Λατσής Ναυτιλία) είναι σε αρνητική θέση −15.4%. Παρακολούθηση για ανάκαμψη. Η ALWN πληρώνει €1.20/μτχ μέρισμα (υψηλό yield).</p>
+      <p>📌 Το ALWN (Allwyn Entertainment AG, πρ. ΟΠΑΠ) είναι σε αρνητική θέση −15.4%. Παρακολούθηση για ανάκαμψη. Η ALWN πληρώνει €1.20/μτχ μέρισμα (υψηλό yield).</p>
       <p>📌 Το ΑΒΑΞ είναι οριακά θετικό +2.9% (1,450 μτχ KEM + 700 μτχ Piraeus = 2,150 συνολικά). Ενεργή εταιρεία κατασκευών στην Ελλάδα.</p>
       <p>📌 Τα μερίσματα KEM καταχωρούνται ξεχωριστά λόγω κοινής κυριότητας.</p>
     </div>
@@ -469,22 +561,22 @@
   <div class="kpi-grid">
     <div class="kpi-card green">
       <div class="kpi-label">Σύνολο Cash</div>
-      <div class="kpi-value">€43,000</div>
+      <div class="kpi-value">€43.000</div>
       <div class="kpi-sub">5 λογαριασμοί</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Emergency Fund</div>
-      <div class="kpi-value">€10,000</div>
+      <div class="kpi-value">€10.000</div>
       <div class="kpi-sub">ΜΠΟΥΦ / ΠΕΤΣ</div>
     </div>
     <div class="kpi-card gold">
       <div class="kpi-label">TR Savings</div>
-      <div class="kpi-value">€3,000</div>
+      <div class="kpi-value">€3.000</div>
       <div class="kpi-sub">+€250/μήνα πλάνο</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Net Worth (Total)</div>
-      <div class="kpi-value">€185,417</div>
+      <div class="kpi-value">€185.417</div>
       <div class="kpi-sub">Portfolio + Cash</div>
     </div>
   </div>
@@ -494,13 +586,13 @@
       <table>
         <thead><tr><th>Λογαριασμός</th><th>Υπόλοιπο</th><th>Σκοπός</th></tr></thead>
         <tbody>
-          <tr><td><strong>TR Savings</strong></td><td class="up">€3,000</td><td style="color:var(--text-muted);font-size:12px;">Επενδύσεις TR / ETF</td></tr>
-          <tr><td><strong>ΜΠΟΥΦ</strong></td><td>€10,000</td><td style="color:var(--text-muted);font-size:12px;">Emergency fund</td></tr>
-          <tr><td><strong>ΠΕΤΣ</strong></td><td>€10,000</td><td style="color:var(--text-muted);font-size:12px;">Γενικές αποταμιεύσεις</td></tr>
-          <tr><td><strong>Sav Alpha Bank</strong></td><td>€10,000</td><td style="color:var(--text-muted);font-size:12px;">Αποθεματικό</td></tr>
-          <tr><td><strong>Sav NBG</strong></td><td>€10,000</td><td style="color:var(--text-muted);font-size:12px;">Κοινός / Λειτουργικά</td></tr>
+          <tr><td><strong>TR Savings</strong></td><td class="up">€3.000</td><td style="color:var(--text-muted);font-size:12px;">Επενδύσεις TR / ETF</td></tr>
+          <tr><td><strong>ΜΠΟΥΦ</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Emergency fund</td></tr>
+          <tr><td><strong>ΠΕΤΣ</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Γενικές αποταμιεύσεις</td></tr>
+          <tr><td><strong>Sav Alpha Bank</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Αποθεματικό</td></tr>
+          <tr><td><strong>Sav NBG</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Κοινός / Λειτουργικά</td></tr>
           <tr style="border-top:2px solid var(--border);font-weight:700;">
-            <td>ΣΥΝΟΛΟ</td><td class="up">€43,000</td><td></td>
+            <td>ΣΥΝΟΛΟ</td><td class="up">€43.000</td><td></td>
           </tr>
         </tbody>
       </table>
@@ -550,6 +642,136 @@
   </div>
 </div>
 
+<!-- ======================== BUSINESS INVESTMENTS TAB ======================== -->
+<div id="tab-business" class="tab-content">
+  <div class="section-title">🏪 Επενδύσεις σε Μαγαζιά & Επιχειρήσεις</div>
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Συνολική Αξία</div>
+      <div class="kpi-value" id="biz-total">—</div>
+      <div class="kpi-sub">Εκτιμώμενη αξία</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Συνολικό Κεφάλαιο</div>
+      <div class="kpi-value" id="biz-invested">—</div>
+      <div class="kpi-sub">Επενδεδυμένο</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Μηνιαία Εισόδημα</div>
+      <div class="kpi-value" id="biz-income">—</div>
+      <div class="kpi-sub">Καθαρό / μήνα</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ROI</div>
+      <div class="kpi-value" id="biz-roi">—</div>
+      <div class="kpi-sub">Επί επενδεδυμένου</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Λίστα Επενδύσεων</div>
+    <div class="tbl-wrap">
+      <table id="bizTable">
+        <thead><tr>
+          <th>Επωνυμία / Περιγραφή</th>
+          <th>Τύπος</th>
+          <th>Ποσοστό %</th>
+          <th>Κεφάλαιο (€)</th>
+          <th>Εκτ. Αξία (€)</th>
+          <th>Μηνιαίο Εισόδημα (€)</th>
+          <th>Κατάσταση</th>
+          <th>Σημειώσεις</th>
+        </tr></thead>
+        <tbody id="bizBody">
+          <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:30px;">📌 Δεν έχουν καταχωρηθεί επενδύσεις ακόμα — θα ορισθούν σε επόμενη φάση</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--gold);">
+    <div class="card-title">📝 Σημειώσεις</div>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+      <p>🚧 <strong>Σε εξέλιξη:</strong> Η καταγραφή και αποτίμηση των επιχειρηματικών επενδύσεων θα οριστικοποιηθεί σε επόμενη συνεδρία.</p>
+      <p>📌 Θα περιλαμβάνει: συμμετοχές σε εταιρείες, επενδύσεις σε καταστήματα/franchise, λοιπές επιχειρηματικές δραστηριότητες.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== REAL ESTATE TAB ======================== -->
+<div id="tab-realestate" class="tab-content">
+  <div class="section-title">🏠 Ακίνητα</div>
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Συνολική Εκτ. Αξία</div>
+      <div class="kpi-value" id="re-total">— (TBD)</div>
+      <div class="kpi-sub">Εκτίμηση αγοράς</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Μηνιαίο Εισόδημα</div>
+      <div class="kpi-value" id="re-income">—</div>
+      <div class="kpi-sub">Ενοίκια καθαρά</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Αριθμός Ακινήτων</div>
+      <div class="kpi-value" id="re-count">2</div>
+      <div class="kpi-sub">Καταγεγραμμένα</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Yield (Εκτ.)</div>
+      <div class="kpi-value" id="re-yield">—</div>
+      <div class="kpi-sub">Μισθωτική απόδοση</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🏘️ Κατάλογος Ακινήτων</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Ακίνητο</th>
+          <th>Τύπος</th>
+          <th>Τοποθεσία</th>
+          <th>Εμβαδόν (τ.μ.)</th>
+          <th>Εκτ. Αξία (€)</th>
+          <th>Κόστος Κτήσης (€)</th>
+          <th>Κατάσταση</th>
+          <th>Ετήσιο Εισόδημα (€)</th>
+          <th>Σημειώσεις</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Διαμέρισμα Ιλίου</strong></td>
+            <td><span class="tag tag-stock">Διαμέρισμα</span></td>
+            <td>Ίλιον, Αθήνα</td>
+            <td>—</td>
+            <td style="color:var(--text-muted)">— (TBD)</td>
+            <td style="color:var(--text-muted)">Κληρονομιά</td>
+            <td><span style="color:var(--gold);font-size:11px;font-weight:600;">Αξιολόγηση</span></td>
+            <td>—</td>
+            <td style="font-size:11px;color:var(--text-muted)">Κληρονομιά — αξιολόγηση σε εξέλιξη</td>
+          </tr>
+          <tr>
+            <td><strong>Μονοκατοικία Ξυλόκαστρο</strong></td>
+            <td><span class="tag tag-stock">Μονοκατοικία</span></td>
+            <td>Μελίσσι, Ξυλόκαστρο</td>
+            <td>—</td>
+            <td style="color:var(--text-muted)">— (TBD)</td>
+            <td style="color:var(--text-muted)">Ιδιοκτησία</td>
+            <td><span style="color:var(--green);font-size:11px;font-weight:600;">Ιδιοκατοίκηση</span></td>
+            <td>—</td>
+            <td style="font-size:11px;color:var(--text-muted)">Θερινή/εξοχική κατοικία</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--accent);">
+    <div class="card-title">📝 Σημείωση</div>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+      <p>🚧 Τα στοιχεία αξιολόγησης (εμβαδόν, εκτιμώμενη αξία, εισόδημα) θα συμπληρωθούν σε επόμενη φάση.</p>
+      <p>📌 Τα ακίνητα αποτελούν σημαντικό κεφάλαιο που θα ενταχθεί στον συνολικό υπολογισμό net worth.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ======================== STRATEGY TAB ======================== -->
 <div id="tab-strategy" class="tab-content">
   <div class="section-title">🏔️ Strategy, Monthly Picks & FIRE</div>
@@ -585,12 +807,12 @@
     <div class="kpi-grid">
       <div class="kpi-card gold">
         <div class="kpi-label">Portfolio Value</div>
-        <div class="kpi-value">€142,180</div>
+        <div class="kpi-value">€142.180</div>
         <div class="kpi-sub">Τρέχουσα αξία</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">FIRE Target (est.)</div>
-        <div class="kpi-value">€800,000</div>
+        <div class="kpi-value">€800.000</div>
         <div class="kpi-sub">4% SWR → €32K/χρόνο</div>
       </div>
       <div class="kpi-card green">
@@ -639,9 +861,10 @@
 // DATA
 // ============================================================
 // ============================================================
-// DATA — Updated from all broker reports 13/10/2026
+// DATA — Updated from all broker reports 13/10/2026 + αγορές 11/11/2026
 // Sources: Piraeus Statement, Trade Republic, Freedom24, Binance
-// EUR/USD rate used: ~0.915 (approx from broker report prices)
+// EUR/USD rate used: ~0.915 (13/10/2026) | 1.11 (11/11/2026)
+// Last update: 11/11/2026
 // ============================================================
 
 // BROKER RECONCILIATION NOTES (13/10/2026):
@@ -650,20 +873,34 @@
 //          ΕΤΕ 150+55=205sh, ΠΕΙΡ 250+60=310sh, ΑΛΦΑ 130+200=330sh
 //          AKTR 450sh, ΔΕΗΕ 139sh, ΕΛΠΕ 5sh (confirmed from dividends)
 //          GEK Bond 7×€1000, AKTOR Bond 4×€1000
-//          Total Piraeus: €110,001.86 (incl. NVDA uplift + GR stocks)
-// Trade Republic: VUAA 19sh @€134.94, VWCE 6sh @€172.76
-//                 BYD 229.7sh @€8.35, AGGG 86sh @€4.51, O 7.081sh @€49.32
-//                 Cash: €2,924.26
+//          Total Piraeus: €110.001.86 (incl. NVDA uplift + GR stocks)
+// Trade Republic (13/10/2026): VUAA.TR 19sh @€134.94, VWCE 6sh @€172.76
+//                 BYD 229.718955sh @€8.35, BOND.TR 86sh @€4.51, O.TR 7.081081sh @€49.32
+//                 Cash: €2.924.26
+// Trade Republic (11/11/2026 αγορές): VUAA.TR +3sh @€131.91, VWCE +1sh @€169.92, O.TR +1sh @€53.15
+// Piraeus (11/11/2026 αγορές): ΔΕΗ +6sh @€23.78, ALWN +4sh @€9.98
 // Freedom24: META 2sh @€672 (=$734.32×0.915), C 2sh @€106, SCHD 6sh @€26.15
 //            FCX 2sh @€34.45, MTLN 223sh @€44.73, AMZN 3sh @€217
 //            SOFI 25sh @€10.48, TDOC 10sh @€5.53
-// Binance: ETH 3.11sh @$2,537→€2,321, WBETH 3.725sh @$2,810→€2,571
-//          ADA 10,649sh @€0.2126
-//          JASMY 14,357sh @$0.00507→€0.00464, MANA 459sh @$0.0977→€0.0894
-//          COTI 3,067sh @$0.01354→€0.01239, BEAM(X) 11,821sh @$0.002777→€0.00254
-//          SUSHI 85.6sh @$0.2418→€0.2212, Total Binance: ~$24,997→€22,872
+// Binance: ETH 3.11sh @$2.537→€2.321, WBETH 3.725sh @$2.810→€2.571
+//          ADA 10.649sh @€0.2126
+//          JASMY 14.357sh @$0.00507→€0.00464, MANA 459sh @$0.0977→€0.0894
+//          COTI 3.067sh @$0.01354→€0.01239, BEAM(X) 11.821sh @$0.002777→€0.00254
+//          SUSHI 85.6sh @$0.2418→€0.2212, Total Binance: ~$24.997→€22.872
 
 const TOTAL_VALUE = 157200; // Recalculated from all brokers
+
+// ─── NUMBER FORMATTING ────────────────────────────────────────────────────────
+// European format: dot as thousands separator, comma as decimal
+function fmt(n, decimals=0) {
+  if(n===undefined||n===null||isNaN(n)) return '—';
+  const fixed = Math.abs(n).toFixed(decimals);
+  const [intPart, decPart] = fixed.split('.');
+  const withDots = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (n<0?'-':'') + (decPart !== undefined ? withDots+','+decPart : withDots);
+}
+function fmtEur(n, decimals=0) { return '€'+fmt(n, decimals); }
+function fmtPct(n, decimals=1, sign=true) { return (sign&&n>=0?'+':'')+fmt(n,decimals)+'%'; }
 
 const holdings = [
   // ─── PIRAEUS ──────────────────────────────────────────────────────────────
@@ -675,8 +912,8 @@ const holdings = [
   {ticker:'BABA',    name:'Alibaba Group',              cat:'Stock-US', shares:20,     avgCost:67.53,   price:110.78,  currency:'USD', invested:1351,   value:2032,   pl:681,    roi:50.4,  divAnn:21,   divYoC:1.55, market:'US'},
   // ΓΕΚ ΤΕΡΝΑ: Piraeus, 135sh, price €40.82 (13/10/2026)
   {ticker:'ΓΕΚΤΕΡΝΑ',name:'ΓΕΚ ΤΕΡΝΑ Α.Ε.',           cat:'Stock',    shares:135,    avgCost:22.74,   price:40.82,   currency:'EUR', invested:3070,   value:5511,   pl:2441,   roi:79.5,  divAnn:59,   divYoC:1.92, market:'GR'},
-  // ΔΕΗ: Piraeus 400sh, price €22.30 (13/10/2026)
-  {ticker:'ΔΕΗ',     name:'Δημόσια Επιχείρηση Ηλεκτρισμού', cat:'Stock', shares:400,  avgCost:13.27,   price:22.30,   currency:'EUR', invested:5308,   value:8920,   pl:3612,   roi:68.1,  divAnn:120,  divYoC:2.26, market:'GR'},
+  // ΔΕΗ: Piraeus 406sh (400+6 αγορά 11/11/2026 @€23.78), avgCost weighted 16.3789
+  {ticker:'ΔΕΗ',     name:'Δημόσια Επιχείρηση Ηλεκτρισμού', cat:'Stock', shares:406,  avgCost:16.3789, price:22.30,   currency:'EUR', invested:6650,   value:9051,   pl:2401,   roi:36.1,  divAnn:120,  divYoC:1.80, market:'GR'},
   // ΑΚΤΩΡ: Piraeus, 450sh, price €9.70 (13/10/2026)
   {ticker:'AKTR',    name:'ΑΚΤΩΡ Α.Ε.',                cat:'Stock',    shares:450,    avgCost:9.03,    price:9.70,    currency:'EUR', invested:4064,   value:4365,   pl:301,    roi:7.4,   divAnn:0,    divYoC:0,    market:'GR'},
   // ΕΤΕ: Piraeus 210sh, price €16.30 (13/10/2026)
@@ -696,16 +933,16 @@ const holdings = [
   // ─── TRADE REPUBLIC ───────────────────────────────────────────────────────
   // VUAA: Piraeus, 78sh @€135.34 (13/10/2026)
   {ticker:'VUAA',    name:'Vanguard S&P500 UCITS Acc',  cat:'ETF',      shares:78,     avgCost:102.85,  price:135.34,  currency:'EUR', invested:8022,   value:10557,  pl:2535,   roi:31.6,  divAnn:0,    divYoC:0,    market:'EU'},
-  // VWCE: TR, 6sh @€172.76
-  {ticker:'VWCE',    name:'Vanguard FTSE All-World Acc', cat:'ETF',     shares:6,      avgCost:162.74,  price:172.76,  currency:'EUR', invested:976,    value:1037,   pl:61,     roi:6.3,   divAnn:0,    divYoC:0,    market:'EU'},
-  // BYD: TR, 229.7sh @€8.35 (price dropped from €10.03)
-  {ticker:'BYD',     name:'BYD Co. Ltd.',               cat:'Stock-US', shares:229.7,  avgCost:10.03,   price:8.35,    currency:'EUR', invested:2304,   value:1918,   pl:-386,   roi:-16.8, divAnn:0,    divYoC:0,    market:'HK'},
-  // AGGG: TR, 86sh @€4.51 (was 42sh — CORRECTED from TR statement)
-  {ticker:'AGGG',    name:'iShares Global Agg Bond ETF', cat:'ETF',     shares:86,     avgCost:4.56,    price:4.51,    currency:'EUR', invested:392,    value:388,    pl:-5,     roi:-1.2,  divAnn:8,    divYoC:2.04, market:'EU'},
-  // O: TR, 7.081sh @€49.32 (13/10/2026)
-  {ticker:'O',       name:'Realty Income Corp.',         cat:'Stock-US', shares:7.081,  avgCost:53.20,   price:49.32,   currency:'EUR', invested:377,    value:349,    pl:-28,    roi:-7.4,  divAnn:25,   divYoC:6.63, market:'US'},
-  // CSPX: TR, 19sh @€134.94 (IE00BFMXXD54 — iShares S&P 500 USD Acc) (13/10/2026) — νέο
-  {ticker:'CSPX',    name:'iShares Core S&P 500 UCITS ETF', cat:'ETF',  shares:19,     avgCost:120.00,  price:134.94,  currency:'EUR', invested:2280,   value:2564,   pl:284,    roi:12.5,  divAnn:0,    divYoC:0,    market:'EU'},
+  // VWCE: TR, 7sh (6+1 αγορά 11/11/2026 @€169.92), avgCost weighted 172.3543
+  {ticker:'VWCE',    name:'Vanguard FTSE All-World Acc', cat:'ETF',     shares:7,      avgCost:172.3543,price:172.76,  currency:'EUR', invested:1207,   value:1209,   pl:3,      roi:0.2,   divAnn:0,    divYoC:0,    market:'EU'},
+  // BYD: TR, 229.718955sh @€8.35 avg (from TR statement 13/10/2026)
+  {ticker:'BYD',     name:'BYD Co. Ltd.',               cat:'Stock-US', shares:229.718955,avgCost:8.35,  price:8.35,    currency:'EUR', invested:1918,   value:1918,   pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'HK'},
+  // BOND.TR: TR, 86sh @€4.51 (from TR statement 13/10/2026)
+  {ticker:'BOND.TR', name:'Global Aggregate Bond ESG EUR',cat:'ETF',    shares:86,     avgCost:4.51,    price:4.51,    currency:'EUR', invested:388,    value:388,    pl:0,      roi:0,     divAnn:8,    divYoC:2.06, market:'EU'},
+  // O.TR: TR, 8.081081sh (7.081081+1 αγορά 11/11/2026 @€53.15), avgCost weighted 49.7939
+  {ticker:'O.TR',    name:'Realty Income Corp.',         cat:'Stock-US', shares:8.081081,avgCost:49.7939, price:49.32,   currency:'EUR', invested:402,    value:399,    pl:-4,     roi:-0.9,  divAnn:28,   divYoC:7.0,  market:'US'},
+  // VUAA.TR: TR, 22sh (19+3 αγορά 11/11/2026 @€131.91), avgCost weighted 134.5268
+  {ticker:'VUAA.TR', name:'S&P 500 USD Acc (iShares)',   cat:'ETF',    shares:22,     avgCost:134.5268,price:134.94,  currency:'EUR', invested:2960,   value:2969,   pl:9,      roi:0.3,   divAnn:0,    divYoC:0,    market:'EU'},
   // ─── FREEDOM24 ─────────────────────────────────────────────────────────────
   // MTLN: Freedom24, 223sh @$48.86→€44.73
   {ticker:'ΜΥΤΙΛ',   name:'Μυτιληναίος Α.Ε.',            cat:'Stock',    shares:223,    avgCost:41.62,   price:48.22,   currency:'EUR', invested:9281,   value:10753,  pl:1472,   roi:15.9,  divAnn:328,  divYoC:3.53, market:'GR'},
@@ -728,33 +965,33 @@ const holdings = [
   // Showing separately: ETH spot and WBETH staked
   {ticker:'ETH',     name:'Ethereum (Spot)',             cat:'Crypto',   shares:3.1110, avgCost:1720,    price:2255,    currency:'EUR', invested:5349,   value:7012,   pl:1663,   roi:31.1,  divAnn:0,    divYoC:0,    market:'Crypto'},
   {ticker:'WBETH',   name:'Wrapped Beacon ETH (Staked)', cat:'Crypto',   shares:3.7246, avgCost:2100,    price:2496,    currency:'EUR', invested:7823,   value:9296,   pl:1473,   roi:18.8,  divAnn:0,    divYoC:0,    market:'Crypto'},
-  // SOL: Binance, 33.45113777sh €3,235.56 (13/10/2026)
+  // SOL: Binance, 33.45113777sh €3.235.56 (13/10/2026)
   {ticker:'SOL',     name:'Solana',                      cat:'Crypto',   shares:33.4511,avgCost:83.72,   price:96.72,   currency:'EUR', invested:2798,   value:3236,   pl:438,    roi:15.7,  divAnn:0,    divYoC:0,    market:'Crypto'},
-  // ADA: Binance, 10,649sh @$0.2523→€0.2309
+  // ADA: Binance, 10.649sh @$0.2523→€0.2309
   {ticker:'ADA',     name:'Cardano',                     cat:'Crypto',   shares:10649.4,avgCost:0.502,   price:0.2126,  currency:'EUR', invested:5346,   value:2264,   pl:-3082,  roi:-57.7, divAnn:0,    divYoC:0,    market:'Crypto'},
   // MANA: Binance, 459.6sh @$0.0977→€0.0894
   {ticker:'MANA',    name:'Decentraland',                cat:'Crypto',   shares:459.6,  avgCost:2.42,    price:0.0827,  currency:'EUR', invested:1112,   value:38,     pl:-1074,  roi:-96.6, divAnn:0,    divYoC:0,    market:'Crypto'},
-  // BEAMX: Binance, 11,822.5sh €29.09 total (13/10/2026)
+  // BEAMX: Binance, 11.822.5sh €29.09 total (13/10/2026)
   {ticker:'BEAMX',   name:'Beam (formerly Merit Circle)', cat:'Crypto',   shares:11822.5,avgCost:0.0374,  price:0.00246, currency:'EUR', invested:442,    value:29,     pl:-413,   roi:-93.4, divAnn:0,    divYoC:0,    market:'Crypto'},
-  // JASMY: Binance, 14,357.7sh €63.00 total (13/10/2026)
+  // JASMY: Binance, 14.357.7sh €63.00 total (13/10/2026)
   {ticker:'JASMY',   name:'JasmyCoin',                   cat:'Crypto',   shares:14357.7,avgCost:0.0109,  price:0.00439, currency:'EUR', invested:157,    value:63,     pl:-94,    roi:-59.9, divAnn:0,    divYoC:0,    market:'Crypto'},
-  // COTI: Binance, 3,067.3sh €34.67 total (13/10/2026) — νέο
+  // COTI: Binance, 3.067.3sh €34.67 total (13/10/2026) — νέο
   {ticker:'COTI',    name:'COTI',                        cat:'Crypto',   shares:3067.3, avgCost:0.0693,  price:0.01130, currency:'EUR', invested:213,    value:35,     pl:-178,   roi:-83.6, divAnn:0,    divYoC:0,    market:'Crypto'},
   // ─── BITPANDA ────────────────────────────────────────────────────────────
-  // ETH: Bitpanda, 0.524sh €1,180.00 (13/10/2026) — "Available on Earn"
+  // ETH: Bitpanda, 0.524sh €1.180.00 (13/10/2026) — "Available on Earn"
   {ticker:'ETH (BP)', name:'Ethereum (Bitpanda)',         cat:'Crypto',   shares:0.524,  avgCost:1065,    price:2252,    currency:'EUR', invested:558,    value:1180,   pl:622,    roi:111.5, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
-  // ADA: Bitpanda, 3,756.9591sh €797.67 (13/10/2026) — "Available on Earn"
+  // ADA: Bitpanda, 3.756.9591sh €797.67 (13/10/2026) — "Available on Earn"
   {ticker:'ADA (BP)', name:'Cardano (Bitpanda)',          cat:'Crypto',   shares:3756.96,avgCost:0.502,   price:0.2123,  currency:'EUR', invested:1886,   value:798,    pl:-1088,  roi:-57.7, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // NEO: Bitpanda, 28.012sh €59.99 (13/10/2026)
   {ticker:'NEO',      name:'NEO',                         cat:'Crypto',   shares:28.012, avgCost:7.18,    price:2.141,   currency:'EUR', invested:201,    value:60,     pl:-141,   roi:-70.1, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
-  // SHIB: Bitpanda, 4,391,159.49sh €20.48 (13/10/2026)
+  // SHIB: Bitpanda, 4.391,159.49sh €20.48 (13/10/2026)
   {ticker:'SHIB',     name:'Shiba Inu',                   cat:'Crypto',   shares:4391159,avgCost:0.0000123,price:0.00000467,currency:'EUR',invested:54,    value:20,     pl:-34,    roi:-62.9, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // ETHW: Bitpanda, 0.5sh €0.12 (13/10/2026) — EthereumPoW fork, negligible
   {ticker:'ETHW',     name:'EthereumPoW',                 cat:'Crypto',   shares:0.5,    avgCost:0.00,    price:0.24,    currency:'EUR', invested:0,      value:0,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // XRP: Bitpanda, 0.0718sh €0.09 (13/10/2026) — negligible dust
   {ticker:'XRP (BP)', name:'XRP (Bitpanda)',              cat:'Crypto',   shares:0.0718, avgCost:0.00,    price:1.254,   currency:'EUR', invested:0,      value:0,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // ─── CRYPTO.COM ──────────────────────────────────────────────────────────
-  // ETH: Crypto.com, 1sh €2,268.93 (13/10/2026)
+  // ETH: Crypto.com, 1sh €2.268.93 (13/10/2026)
   {ticker:'ETH (CDC)', name:'Ethereum (Crypto.com)',       cat:'Crypto',   shares:1,      avgCost:160.06,  price:2269,    currency:'EUR', invested:160,    value:2269,   pl:2109,   roi:1317.6,divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // ADA: Crypto.com, 965sh €205.40 (13/10/2026)
   {ticker:'ADA (CDC)', name:'Cardano (Crypto.com)',        cat:'Crypto',   shares:965,    avgCost:0.05,    price:0.2129,  currency:'EUR', invested:48,     value:205,    pl:157,    roi:327.1, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
@@ -764,11 +1001,11 @@ const holdings = [
   {ticker:'POL',       name:'Polygon Ecosystem Token',     cat:'Crypto',   shares:500,    avgCost:0.35,    price:0.0939,  currency:'EUR', invested:175,    value:47,     pl:-128,   roi:-73.1, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // NEO: Crypto.com, 21sh €45.84 (13/10/2026)
   {ticker:'NEO (CDC)', name:'NEO (Crypto.com)',             cat:'Crypto',   shares:21,     avgCost:7.18,    price:2.183,   currency:'EUR', invested:151,    value:46,     pl:-105,   roi:-69.5, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
-  // FLOKI: Crypto.com, 1,010.3sh €23.98 (13/10/2026)
+  // FLOKI: Crypto.com, 1.010.3sh €23.98 (13/10/2026)
   {ticker:'FLOKI',     name:'Floki Inu',                   cat:'Crypto',   shares:1010.3, avgCost:0.05,    price:0.02373, currency:'EUR', invested:51,     value:24,     pl:-27,    roi:-52.9, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // GAS: Crypto.com, 0.589sh €0.71 (13/10/2026) — NEO GAS, dust
   {ticker:'GAS',       name:'GAS (NEO)',                    cat:'Crypto',   shares:0.589,  avgCost:0.00,    price:1.206,   currency:'EUR', invested:0,      value:1,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
-  // STRAX: Crypto.com, 1,289.2sh €0.01 (13/10/2026) — dust
+  // STRAX: Crypto.com, 1.289.2sh €0.01 (13/10/2026) — dust
   {ticker:'STRAX',     name:'Stratis (new)',                cat:'Crypto',   shares:1289.2, avgCost:0.00,    price:0.000008,currency:'EUR', invested:0,      value:0,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // MOH: Freedom24 position
   {ticker:'ΜΟΤΡ',    name:'Motor Oil Hellas',             cat:'Stock',    shares:40,     avgCost:46.25,   price:68.80,   currency:'EUR', invested:1850,   value:2752,   pl:902,    roi:48.8,  divAnn:120,  divYoC:6.49, market:'GR'},
@@ -779,14 +1016,14 @@ const holdings = [
   // Using total KEM-only portion: 1450sh (separate from Piraeus direct holdings)
   {ticker:'ΑΒΑΞ (KEM)',name:'ΑΒΑΞ Κατασκευαστική',     cat:'Stock',    shares:1450,   avgCost:3.47,    price:3.57,    currency:'EUR', invested:5032,   value:5177,   pl:145,    roi:2.9,   divAnn:93,   divYoC:1.85, market:'GR', kem:true},
   // ALWN: KEM, 400sh in Piraeus + 145sh KEM = clarified
-  {ticker:'ALWN (KEM)',name:'Allwyn AG (τυχερά παιχνίδια)',cat:'Stock',  shares:545,    avgCost:15.93,   price:12.085,  currency:'EUR', invested:8682,   value:6586,   pl:-2096,  roi:-24.1, divAnn:654,  divYoC:7.53, market:'GR', kem:true},
+  {ticker:'ALWN (KEM)',name:'Allwyn Entertainment AG (πρ. ΟΠΑΠ)',cat:'Stock',shares:545,  avgCost:15.93,   price:12.085,  currency:'EUR', invested:8682,   value:6586,   pl:-2096,  roi:-24.1, divAnn:654,  divYoC:7.53, market:'GR', kem:true},
   // ΑΒΑΞ direct Piraeus (700sh)
   {ticker:'ΑΒΑΞ',    name:'ΑΒΑΞ Κατασκευαστική (Piraeus)', cat:'Stock', shares:700,   avgCost:3.47,    price:3.57,    currency:'EUR', invested:2429,   value:2499,   pl:70,     roi:2.9,   divAnn:45,   divYoC:1.85, market:'GR'},
-  // ALWN direct Piraeus (400sh)
-  {ticker:'ALWN',    name:'Allwyn AG (τυχερά παιχνίδια)',  cat:'Stock',  shares:400,   avgCost:13.85,   price:12.085,  currency:'EUR', invested:5540,   value:4834,   pl:-706,   roi:-12.7, divAnn:480,  divYoC:8.66, market:'GR'},
+  // ALWN direct Piraeus (404sh = 400+4 αγορά 11/11/2026 @€9.98), avgCost weighted 15.3719
+  {ticker:'ALWN',    name:'Allwyn Entertainment AG (πρ. ΟΠΑΠ)', cat:'Stock', shares:404, avgCost:15.3719, price:12.085,  currency:'EUR', invested:6210,   value:4882,   pl:-1328,  roi:-21.4, divAnn:484,  divYoC:7.79, market:'GR'},
 ];
 
-const manualTickers = ['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΔΕΗΕ','ΓΕΚ Bond','AKTOR Bond','ΕΛΠΕ','ΑΒΑΞ','ALWN','ΜΥΤΙΛ','ΜΟΤΡ'];
+const manualTickers = ['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΔΕΗΕ','ΓΕΚ Bond','AKTOR Bond','ΕΛΠΕ','ΑΒΑΞ','ALWN','ΜΥΤΙΛ','ΜΟΤΡ','BYD','VWCE','O.TR','VUAA.TR','BOND.TR'];
 const cryptoTickers = ['ETH','WBETH','ADA','SOL','MANA','BEAMX','JASMY','COTI'];
 const usTickers     = ['NVDA','MSFT','BABA','META','AMZN','SOFI','INTC','O','C','SCHD','FCX','TDOC'];
 
@@ -801,12 +1038,25 @@ const transactions = [
   {date:'2026-08-15',ticker:'ΜΥΤΙΛ',   type:'BUY', shares:77,    price:48.86,  total:3762,   note:'Aug 2026 injection — Πειραιώς'},
   {date:'2026-08-15',ticker:'ΔΕΗ',      type:'BUY', shares:35,    price:22.10,  total:774,    note:'Aug 2026 injection — Πειραιώς'},
   // ── Sep 2026 TR monthly ────────────────────────────────────────────
-  {date:'2026-09-05',ticker:'VUAA',     type:'BUY', shares:4,     price:128.08, total:512,    note:'Sep TR monthly'},
+  {date:'2026-09-05',ticker:'VUAA.TR',  type:'BUY', shares:4,     price:128.08, total:512,    note:'Sep TR monthly'},
   {date:'2026-09-05',ticker:'VWCE',     type:'BUY', shares:1,     price:167.62, total:168,    note:'Sep TR monthly'},
-  {date:'2026-09-05',ticker:'O',        type:'BUY', shares:1,     price:52.85,  total:53,     note:'Sep TR monthly'},
-  {date:'2026-09-05',ticker:'AGGG',     type:'BUY', shares:22,    price:4.56,   total:100,    note:'Sep TR monthly'},
+  {date:'2026-09-05',ticker:'O.TR',     type:'BUY', shares:1,     price:52.85,  total:53,     note:'Sep TR monthly'},
+  {date:'2026-09-05',ticker:'BOND.TR',  type:'BUY', shares:22,    price:4.56,   total:100,    note:'Sep TR monthly'},
   // ── Oct 2026 TR monthly ────────────────────────────────────────────
-  {date:'2026-10-03',ticker:'VUAA',     type:'BUY', shares:3,     price:134.36, total:403,    note:'Oct TR monthly'},
+  {date:'2026-10-03',ticker:'VUAA.TR',  type:'BUY', shares:3,     price:134.36, total:403,    note:'Oct TR monthly'},
+  // ── TR statement 13/10/2026 (opening positions) ───────────────────
+  {date:'2026-10-13',ticker:'BYD',      type:'BUY', shares:229.718955,price:8.35,total:1918,  note:'TR statement 13/10/2026'},
+  {date:'2026-10-13',ticker:'VWCE',     type:'BUY', shares:6,     price:172.76, total:1037,   note:'TR statement 13/10/2026'},
+  {date:'2026-10-13',ticker:'O.TR',     type:'BUY', shares:7.081081,price:49.32,total:349,    note:'TR statement 13/10/2026'},
+  {date:'2026-10-13',ticker:'VUAA.TR',  type:'BUY', shares:19,    price:134.94, total:2564,   note:'TR statement 13/10/2026'},
+  {date:'2026-10-13',ticker:'BOND.TR',  type:'BUY', shares:86,    price:4.51,   total:388,    note:'TR statement 13/10/2026'},
+  // ── 11/11/2026 αγορές TR ──────────────────────────────────────────
+  {date:'2026-11-11',ticker:'VUAA.TR',  type:'BUY', shares:3,     price:131.91, total:396,    note:'Αγορά 11/11/2026 — Trade Republic'},
+  {date:'2026-11-11',ticker:'VWCE',     type:'BUY', shares:1,     price:169.92, total:170,    note:'Αγορά 11/11/2026 — Trade Republic'},
+  {date:'2026-11-11',ticker:'O.TR',     type:'BUY', shares:1,     price:53.15,  total:53,     note:'Αγορά 11/11/2026 — Trade Republic'},
+  // ── 11/11/2026 αγορές Piraeus ─────────────────────────────────────
+  {date:'2026-11-11',ticker:'ΔΕΗ',      type:'BUY', shares:6,     price:23.78,  total:143,    note:'Αγορά 11/11/2026 — Πειραιώς'},
+  {date:'2026-11-11',ticker:'ALWN',     type:'BUY', shares:4,     price:9.98,   total:40,     note:'Αγορά 11/11/2026 — Πειραιώς'},
   // ── 2026 Dividends (from broker statements) ────────────────────────
   {date:'2026-10-01',ticker:'NVDA',     type:'DIV', shares:null,  price:null,   total:33,     note:'NVDA quarterly div (131sh × $0.25) — Πειραιώς'},
   {date:'2026-09-10',ticker:'MSFT',     type:'DIV', shares:null,  price:null,   total:12,     note:'MSFT quarterly div (12sh × $0.91) — Πειραιώς'},
@@ -900,6 +1150,7 @@ const perfSnapshots = [
   {date:'May 2026', value:110367},
   {date:'Aug 2026', value:142417},
   {date:'Oct 2026', value:142180},
+  {date:'Nov 2026', value:142800},
 ];
 
 // Asset allocation targets
@@ -918,9 +1169,18 @@ const targetAllocation = {
 let prices = {};
 holdings.forEach(h => { prices[h.ticker] = h.price; });
 
+// EUR/USD rate — editable from Prices tab
+let eurUsd = 1.110;
+
 function init() {
+  // Set today's date in the price date input
+  const today = new Date().toISOString().split('T')[0];
+  const pdEl = document.getElementById('priceDate');
+  if(pdEl) pdEl.value = today;
+  const ruEl = document.getElementById('eurUsdRate');
+  if(ruEl) { ruEl.value = eurUsd; ruEl.addEventListener('change', () => { eurUsd = parseFloat(ruEl.value)||1.11; recalc(); }); }
+  buildPricesTab();
   recalc();
-  buildManualPriceGrid();
   buildTop10();
   buildHoldings();
   buildTransactions();
@@ -941,33 +1201,101 @@ function setLastUpdated() {
 }
 
 // ============================================================
-// MANUAL PRICE GRID
+// PRICES TAB
 // ============================================================
-function buildManualPriceGrid() {
-  const grid = document.getElementById('manualPriceGrid');
-  grid.innerHTML = '';
-  manualTickers.forEach(t => {
-    const h = holdings.find(h=>h.ticker===t);
-    if(!h) return;
-    const div = document.createElement('div');
-    div.className = 'manual-item';
-    div.innerHTML = `<label>${t}</label><input class="price-input" id="manual_${t.replace(/ /g,'_')}" value="${h.price}" step="0.01" onchange="applyManualPrice('${t}', this.value)">`;
-    grid.appendChild(div);
+const priceGroups = {
+  'gr':     { label:'ΧΑ',  ccy:'EUR', tickers:['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΔΕΗΕ','ΕΛΠΕ','ΑΒΑΞ','ALWN','ΜΥΤΙΛ','ΜΟΤΡ'] },
+  'us':     { label:'USA', ccy:'USD', tickers:['NVDA','MSFT','BABA','META','AMZN','SOFI','INTC','C','SCHD','FCX','TDOC'] },
+  'etf':    { label:'ETF', ccy:'EUR', tickers:['VUAA','VWCE','VUAA.TR','O.TR','BOND.TR','BYD'] },
+  'bond':   { label:'Bond',ccy:'EUR', tickers:['ΓΕΚ Bond','AKTOR Bond'] },
+  'crypto': { label:'Crypto',ccy:'USD',tickers:['ETH','WBETH','ADA','SOL','MANA','BEAMX','JASMY','COTI','ETH (BP)','ADA (BP)','NEO','ETH (CDC)','ADA (CDC)','SYN','POL','NEO (CDC)','FLOKI'] }
+};
+
+function buildPricesTab() {
+  Object.entries(priceGroups).forEach(([groupId, group]) => {
+    const container = document.getElementById('pgrid-'+groupId);
+    if(!container) return;
+    container.innerHTML = '';
+    // deduplicate tickers in case of duplicates
+    const seen = new Set();
+    group.tickers.forEach(t => {
+      if(seen.has(t)) return; seen.add(t);
+      const h = holdings.find(h=>h.ticker===t);
+      if(!h) return;
+      const ccy = group.ccy || 'EUR';
+      const sym = ccy==='USD'?'$':'€';
+      const pct = h.avgCost > 0 ? ((h.price - h.avgCost)/h.avgCost*100) : 0;
+      const plClass = pct>=0?'up':'down';
+      const safeId = 'pc_'+t.replace(/[^a-zA-Z0-9]/g,'_');
+      const isCrypto = groupId==='crypto';
+      const decimals = isCrypto ? (h.price < 0.01 ? 6 : 4) : 2;
+      const card = document.createElement('div');
+      card.className = 'price-card';
+      card.innerHTML = `
+        <div class="pc-ticker">${t} <span style="font-size:9px;color:var(--text-muted);font-weight:400;">${ccy}</span></div>
+        <div class="pc-name" title="${h.name}">${h.name}</div>
+        <div class="pc-row">
+          <span class="pc-label">Τιμή (${sym})</span>
+          <input class="pc-input" id="${safeId}" type="number" step="${isCrypto?'0.000001':'0.01'}" value="${h.price.toFixed(decimals)}" onchange="applyPrice('${t}',this.value)">
+        </div>
+        <div class="pc-row">
+          <span class="pc-avg">Avg: ${sym}${h.avgCost.toFixed(2)}</span>
+          <span class="pc-pl ${plClass}" id="${safeId}_pl">${pct>=0?'+':''}${pct.toFixed(1)}%</span>
+        </div>`;
+      container.appendChild(card);
+    });
+  });
+}
+
+function applyPrice(ticker, val) {
+  const h = holdings.find(h=>h.ticker===ticker);
+  if(!h) return;
+  h.price = parseFloat(val)||0;
+  // update pl badge in price card
+  const safeId = 'pc_'+ticker.replace(/[^a-zA-Z0-9]/g,'_');
+  const plEl = document.getElementById(safeId+'_pl');
+  if(plEl) {
+    const pct = h.avgCost > 0 ? ((h.price - h.avgCost)/h.avgCost*100) : 0;
+    plEl.textContent = (pct>=0?'+':'')+pct.toFixed(1)+'%';
+    plEl.className = 'pc-pl '+(pct>=0?'up':'down');
+  }
+  recalc();
+}
+
+function applyAllPrices() {
+  // read all price inputs from the prices tab and apply
+  holdings.forEach(h => {
+    const safeId = 'pc_'+h.ticker.replace(/[^a-zA-Z0-9]/g,'_');
+    const inp = document.getElementById(safeId);
+    if(inp) { h.price = parseFloat(inp.value)||h.price; }
+  });
+  // update EUR/USD
+  const ruEl = document.getElementById('eurUsdRate');
+  if(ruEl) eurUsd = parseFloat(ruEl.value)||1.11;
+  recalc();
+  // update date display
+  const pdEl = document.getElementById('priceDate');
+  const dateStr = pdEl ? pdEl.value : new Date().toISOString().split('T')[0];
+  const savedEl = document.getElementById('pricesLastSaved');
+  if(savedEl) savedEl.textContent = '✅ Αποθηκεύτηκε: '+dateStr+' | EUR/USD: '+eurUsd.toFixed(3);
+  document.getElementById('lastUpdated').textContent = 'Ενημέρωση: '+dateStr+' (χειροκίνητη)';
+  showNotification('✅ Τιμές ενημερώθηκαν! '+dateStr);
+  // rebuild price pl badges
+  buildPricesTab();
+  // re-populate inputs (since buildPricesTab recreates them)
+  holdings.forEach(h => {
+    const safeId = 'pc_'+h.ticker.replace(/[^a-zA-Z0-9]/g,'_');
+    const inp = document.getElementById(safeId);
+    if(inp) inp.value = h.price;
   });
 }
 
 function applyManualPrice(ticker, val) {
-  const h = holdings.find(h=>h.ticker===ticker);
-  if(h) { h.price = parseFloat(val); recalc(); }
+  applyPrice(ticker, val);
 }
 
 function saveManualPrices() {
-  manualTickers.forEach(t => {
-    const inp = document.getElementById('manual_'+t.replace(/ /g,'_'));
-    if(inp) applyManualPrice(t, inp.value);
-  });
-  showNotification('✅ Τιμές αποθηκεύτηκαν!');
-  setLastUpdated();
+  applyAllPrices();
 }
 
 // ============================================================
@@ -990,10 +1318,10 @@ function updateKPIs() {
   const invested = mainHoldings.reduce((s,h)=>s+h.invested, 0);
   const pl = total - invested;
   const roi = invested > 0 ? (pl/invested*100) : 0;
-  document.getElementById('kpi-total').textContent = '€'+Math.round(total).toLocaleString();
-  document.getElementById('kpi-pl').textContent = (pl>=0?'+':'')+'€'+Math.round(pl).toLocaleString()+' ('+(roi>=0?'+':'')+roi.toFixed(1)+'%)';
-  document.getElementById('kpi-invested').textContent = '€'+Math.round(invested).toLocaleString();
-  document.getElementById('kpi-unrealized').textContent = (pl>=0?'+':'')+'€'+Math.round(pl).toLocaleString();
+  document.getElementById('kpi-total').textContent = fmtEur(Math.round(total));
+  document.getElementById('kpi-pl').textContent = (pl>=0?'+':'')+fmtEur(Math.round(pl))+' ('+fmtPct(roi)+')';
+  document.getElementById('kpi-invested').textContent = fmtEur(Math.round(invested));
+  document.getElementById('kpi-unrealized').textContent = (pl>=0?'+':'')+fmtEur(Math.round(pl));
   const countEl = document.getElementById('kpi-count');
   if(countEl) countEl.textContent = holdings.filter(h=>!h.kem).length;
 }
@@ -1012,16 +1340,16 @@ function buildTop10() {
     tr.innerHTML = `
       <td><span class="ticker ${h.market==='GR'?'gr':h.market==='Crypto'?'crypto':'us'}">${h.ticker}</span></td>
       <td><span class="tag tag-${h.cat.toLowerCase().replace('-us','').replace('-','')} tag-${h.cat==='Stock'?'stock':h.cat==='ETF'?'etf':h.cat==='Crypto'?'crypto':h.cat.includes('Bond')?'bond':'stock'}">${h.cat}</span></td>
-      <td><strong>€${Math.round(h.value).toLocaleString()}</strong></td>
-      <td>€${Math.round(h.invested).toLocaleString()}</td>
-      <td class="${h.pl>=0?'up':'down'}">${h.pl>=0?'+':''}€${Math.round(h.pl).toLocaleString()}</td>
+      <td><strong>${fmtEur(Math.round(h.value))}</strong></td>
+      <td>${fmtEur(Math.round(h.invested))}</td>
+      <td class="${h.pl>=0?'up':'down'}">${h.pl>=0?'+':''}${fmtEur(Math.round(h.pl))}</td>
       <td class="${h.roi>=0?'up':'down'}">${h.roi>=0?'+':''}${h.roi.toFixed(1)}%</td>
       <td>
         <div style="display:flex;align-items:center;gap:6px;">
           <div style="background:var(--bg-secondary);border-radius:3px;height:6px;width:80px;overflow:hidden;">
             <div style="height:100%;background:var(--accent);width:${Math.min(w*3,100)}%"></div>
           </div>
-          <span style="font-size:11px;color:var(--text-muted)">${w.toFixed(1)}%</span>
+          <span style="font-size:11px;color:var(--text-muted)">${fmt(w,1)}%</span>
         </div>
       </td>`;
     tbody.appendChild(tr);
@@ -1053,18 +1381,16 @@ function buildHoldings() {
       <td><span class="ticker ${h.market==='GR'?'gr':h.market==='Crypto'?'crypto':'us'}">${h.ticker}</span>${h.kem?'<span style="font-size:9px;color:#fb923c;margin-left:4px;">KEM</span>':''}</td>
       <td style="font-size:12px;color:var(--text-secondary)">${h.name}</td>
       <td><span class="tag tag-${catClass}">${h.cat}</span></td>
-      <td>${h.shares > 100 ? Math.round(h.shares).toLocaleString() : h.shares}</td>
+      <td>${h.shares > 100 ? fmt(Math.round(h.shares)) : h.shares}</td>
       <td>€${h.avgCost.toFixed(2)}</td>
       <td>
-        ${manualTickers.includes(h.ticker)
-          ? `<input class="price-input" value="${h.price.toFixed(2)}" onchange="applyManualPrice('${h.ticker}',this.value)">`
-          : `<span style="color:${h.price>=h.avgCost?'var(--green)':'var(--red)'};font-weight:600;">€${h.price.toFixed(2)}</span>`}
+        <span style="color:${h.price>=h.avgCost?'var(--green)':'var(--red)'};font-weight:600;" id="hprice_${h.ticker.replace(/[^a-zA-Z0-9]/g,'_')}">€${h.price.toFixed(2)}</span>
       </td>
-      <td><strong>€${Math.round(h.value).toLocaleString()}</strong></td>
-      <td>€${Math.round(h.invested).toLocaleString()}</td>
-      <td class="${h.pl>=0?'up':'down'}">${h.pl>=0?'+':''}€${Math.round(h.pl).toLocaleString()}</td>
-      <td class="${h.roi>=0?'up':'down'}" style="font-weight:700;">${h.roi>=0?'+':''}${h.roi.toFixed(1)}%</td>
-      <td style="font-size:11px;color:var(--text-muted)">${w.toFixed(1)}%</td>`;
+      <td><strong>${fmtEur(Math.round(h.value))}</strong></td>
+      <td>${fmtEur(Math.round(h.invested))}</td>
+      <td class="${h.pl>=0?'up':'down'}">${h.pl>=0?'+':''}${fmtEur(Math.round(h.pl))}</td>
+      <td class="${h.roi>=0?'up':'down'}" style="font-weight:700;">${fmtPct(h.roi)}</td>
+      <td style="font-size:11px;color:var(--text-muted)">${fmt(w,1)}%</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -1099,8 +1425,8 @@ function renderTx(data) {
       <td><strong>${tx.ticker}</strong></td>
       <td><span style="color:${typeColor};font-weight:700;font-size:12px;">${tx.type}</span></td>
       <td>${tx.shares ?? '—'}</td>
-      <td>${tx.price ? '€'+tx.price.toFixed(2) : '—'}</td>
-      <td class="${tx.type==='SELL'?'down':tx.type==='DIV'?'up neutral':'up'}"><strong>€${tx.total.toLocaleString()}</strong></td>
+      <td>${tx.price ? fmtEur(tx.price,2) : '—'}</td>
+      <td class="${tx.type==='SELL'?'down':tx.type==='DIV'?'up neutral':'up'}"><strong>${fmtEur(tx.total)}</strong></td>
       <td style="font-size:11px;color:var(--text-muted)">${tx.note}</td>`;
     tbody.appendChild(tr);
   });
@@ -1131,9 +1457,9 @@ function buildDividends() {
     tr.innerHTML = `
       <td><span class="ticker ${h.market==='GR'?'gr':h.market==='Crypto'?'crypto':'us'}">${h.ticker}</span>${h.kem?'<span style="font-size:9px;color:#fb923c;margin-left:4px;">KEM</span>':''}</td>
       <td style="font-size:12px;color:var(--text-secondary)">${h.name}</td>
-      <td><span class="div-badge">€${h.divAnn}</span></td>
-      <td class="up">${yoc.toFixed(2)}%</td>
-      <td class="${yov>2?'up':'neutral'}">${yov.toFixed(2)}%</td>
+      <td><span class="div-badge">${fmtEur(h.divAnn)}</span></td>
+      <td class="up">${fmt(yoc,2)}%</td>
+      <td class="${yov>2?'up':'neutral'}">${fmt(yov,2)}%</td>
       <td style="font-size:12px;color:var(--text-muted)">2025-2026</td>
       <td style="font-size:11px;color:var(--text-muted)">${h.kem?'KEM θέση':'Ετήσιο εκτιμώμενο'}</td>`;
     tbody.appendChild(tr);
@@ -1143,7 +1469,7 @@ function buildDividends() {
 function buildDivTimeline() {
   const tl = document.getElementById('divTimeline');
   const divTx = transactions.filter(t=>t.type==='DIV').sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
-  tl.innerHTML = divTx.map(t=>`<div class="tl-item"><div class="tl-date">${t.date}</div><div class="tl-text"><strong>${t.ticker}</strong>: +€${t.total} — ${t.note}</div></div>`).join('');
+  tl.innerHTML = divTx.map(t=>`<div class="tl-item"><div class="tl-date">${t.date}</div><div class="tl-text"><strong>${t.ticker}</strong>: +${fmtEur(t.total)} — ${t.note}</div></div>`).join('');
 }
 
 // ============================================================
@@ -1178,7 +1504,7 @@ function buildAllocation() {
         <div class="progress-header">
           <span>${cat}</span>
           <span style="color:${Math.abs(diff)>3?(diff>0?'var(--red)':'var(--yellow)'):'var(--green)'}">
-            ${pct.toFixed(1)}% <span style="color:var(--text-muted);font-size:10px;">(Στόχος: ${target}%)</span>
+            ${fmt(pct,1)}% <span style="color:var(--text-muted);font-size:10px;">(Στόχος: ${target}%)</span>
           </span>
         </div>
         <div class="progress-bar">
@@ -1198,10 +1524,10 @@ function buildAllocation() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${cat}</strong></td>
-      <td>${pct.toFixed(1)}%</td>
+      <td>${fmt(pct,1)}%</td>
       <td>${target}%</td>
-      <td class="${Math.abs(diff)<2?'up':diff>0?'down':'up'}" style="font-weight:600;">${diff>=0?'+':''}${diff.toFixed(1)}%</td>
-      <td>${amtNeeded>100?'Αγορά €'+Math.round(amtNeeded).toLocaleString():'✅ OK'}</td>
+      <td class="${Math.abs(diff)<2?'up':diff>0?'down':'up'}" style="font-weight:600;">${diff>=0?'+':''}${fmt(diff,1)}%</td>
+      <td>${amtNeeded>100?'Αγορά '+fmtEur(Math.round(amtNeeded)):'✅ OK'}</td>
       <td style="font-size:11px;color:var(--text-muted)">${diff>3?'Overweight':diff<-3?'Underweight':'In range'}</td>`;
     tbody.appendChild(tr);
   });
@@ -1218,23 +1544,23 @@ function updateKEM() {
   const vALWN = 545 * pALWN;
   const plABAX = vABAX - 5032;   // cost basis: 1450sh × €3.47
   const plALWN = vALWN - 8682;   // cost basis: 545sh × €15.93
-  document.getElementById('kemABAXVal').textContent = '€'+Math.round(vABAX).toLocaleString();
-  document.getElementById('kemALWNVal').textContent = '€'+Math.round(vALWN).toLocaleString();
-  document.getElementById('kemABAXPL').textContent = (plABAX>=0?'+':'')+'€'+Math.round(plABAX).toLocaleString();
+  document.getElementById('kemABAXVal').textContent = fmtEur(Math.round(vABAX));
+  document.getElementById('kemALWNVal').textContent = fmtEur(Math.round(vALWN));
+  document.getElementById('kemABAXPL').textContent = (plABAX>=0?'+':'')+fmtEur(Math.round(plABAX));
   document.getElementById('kemABAXPL').className = plABAX>=0?'up':'down';
-  document.getElementById('kemABAXROI').textContent = (plABAX/5032*100>=0?'+':'')+(plABAX/5032*100).toFixed(1)+'%';
+  document.getElementById('kemABAXROI').textContent = fmtPct(plABAX/5032*100);
   document.getElementById('kemABAXROI').className = plABAX>=0?'up':'down';
-  document.getElementById('kemALWNPL').textContent = (plALWN>=0?'+':'')+'€'+Math.round(plALWN).toLocaleString();
+  document.getElementById('kemALWNPL').textContent = (plALWN>=0?'+':'')+fmtEur(Math.round(plALWN));
   document.getElementById('kemALWNPL').className = plALWN>=0?'up':'down';
-  document.getElementById('kemALWNROI').textContent = (plALWN/8682*100>=0?'+':'')+(plALWN/8682*100).toFixed(1)+'%';
+  document.getElementById('kemALWNROI').textContent = fmtPct(plALWN/8682*100);
   document.getElementById('kemALWNROI').className = plALWN>=0?'up':'down';
   // Update KEM total
   const vTotalKEM = vABAX + vALWN;
   const plTotalKEM = plABAX + plALWN;
   const el = document.getElementById('kemTotal');
-  if(el) { el.textContent = '€'+Math.round(vTotalKEM).toLocaleString(); }
+  if(el) { el.textContent = fmtEur(Math.round(vTotalKEM)); }
   const elPL = document.getElementById('kemTotalPL');
-  if(elPL) { elPL.textContent = (plTotalKEM>=0?'+':'')+'€'+Math.round(plTotalKEM).toLocaleString(); elPL.className=plTotalKEM>=0?'up':'down'; }
+  if(elPL) { elPL.textContent = (plTotalKEM>=0?'+':'')+fmtEur(Math.round(plTotalKEM)); elPL.className=plTotalKEM>=0?'up':'down'; }
 }
 
 // ============================================================
@@ -1271,7 +1597,7 @@ function drawPerfChart() {
         x:{ ticks:{color:'#64748b',font:{size:9},maxRotation:45}, grid:{color:'rgba(42,58,85,0.3)'} },
         y:{ ticks:{color:'#64748b',font:{size:10},callback:v=>'€'+Math.round(v/1000)+'K'}, grid:{color:'rgba(42,58,85,0.3)'} }
       },
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>'€'+ctx.raw.toLocaleString()}} }
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>fmtEur(ctx.raw)}} }
     }
   });
 }
@@ -1319,7 +1645,7 @@ function drawPieChart() {
     },
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'55%',
-      plugins:{ legend:{ position:'right', labels:{color:'#94a3b8',font:{size:11},padding:12} }, tooltip:{callbacks:{label:c=>`${c.label}: €${Math.round(c.raw).toLocaleString()} (${(c.raw/total*100).toFixed(1)}%)`}} }
+      plugins:{ legend:{ position:'right', labels:{color:'#94a3b8',font:{size:11},padding:12} }, tooltip:{callbacks:{label:c=>`${c.label}: ${fmtEur(Math.round(c.raw))} (${(c.raw/total*100).toFixed(1)}%)`}} }
     },
     plugins:[outerLabelPlugin]
   });
@@ -1363,8 +1689,8 @@ function drawDivYearChart() {
       labels:['2023','2024','2025','2026 (YTD)'],
       // Real dividend totals from broker statements:
       // 2023: ΟΠΑΠ €57 = €57
-      // 2024: ΟΠΑΠ×2 €174, ΕΤΕ €47, ΠΕΙΡ €15, ΜΥΤΙΛ €161, ΕΛΠΕ €1, ΔΕΗ €1, VOW3 €544, ΑΡΑ €107, BABA €30 = €1,080
-      // 2025: full-year Piraeus + Freedom24 = ~€1,045
+      // 2024: ΟΠΑΠ×2 €174, ΕΤΕ €47, ΠΕΙΡ €15, ΜΥΤΙΛ €161, ΕΛΠΕ €1, ΔΕΗ €1, VOW3 €544, ΑΡΑ €107, BABA €30 = €1.080
+      // 2025: full-year Piraeus + Freedom24 = ~€1.045
       // 2026 YTD (to Oct): NVDA×3 €99, MSFT×3 €33, BABA €21, ALWN KEM €167, ΓΕΚΤΕΡΝΑ €39, ΜΥΤΙΛ €167, ΕΛΠΕ €3, ΔΕΗ €52, ΠΕΙΡ €93, ΕΤΕ €63, ΟΠΑΠ €131, SCHD×3 €23, META×3 €12, C div = ~€903
       datasets:[{ label:'Μερίσματα €', data:[57,1080,1045,903], backgroundColor:['rgba(245,158,11,0.5)','rgba(245,158,11,0.6)','rgba(245,158,11,0.7)','rgba(16,185,129,0.7)'], borderColor:['#f59e0b','#f59e0b','#f59e0b','#10b981'], borderWidth:1 }]
     },
@@ -1377,16 +1703,47 @@ function drawDivYearChart() {
 
 function drawCashPieChart() {
   const ctx = document.getElementById('cashPieChart').getContext('2d');
+  const labels = ['TR Cash','ΜΠΟΥΦ','ΠΕΤΣ','Sav Alpha','Sav NBG'];
+  const vals = [2924.26,10000,10000,10000,10000];
+  const totalCash = vals.reduce((a,b)=>a+b,0);
+  const colors = ['#10b981','#3b82f6','#8b5cf6','#f59e0b','#ef4444'];
+
+  const cashLabelPlugin = {
+    id:'cashDonutLabels',
+    afterDatasetsDraw(chart) {
+      const {ctx:c, data} = chart;
+      c.save();
+      data.datasets.forEach((dataset, di) => {
+        chart.getDatasetMeta(di).data.forEach((arc, i) => {
+          const val = dataset.data[i];
+          const pct = (val/totalCash*100).toFixed(1);
+          const mid = arc.startAngle + (arc.endAngle - arc.startAngle)/2;
+          const r = (arc.outerRadius + arc.innerRadius)/2;
+          const x = arc.x + Math.cos(mid)*r;
+          const y = arc.y + Math.sin(mid)*r;
+          if(arc.endAngle - arc.startAngle < 0.3) return;
+          c.textAlign='center'; c.textBaseline='middle';
+          c.font='bold 11px Inter,sans-serif'; c.fillStyle='#fff';
+          c.fillText(fmtEur(Math.round(val)), x, y-6);
+          c.font='10px Inter,sans-serif'; c.fillStyle='rgba(255,255,255,0.8)';
+          c.fillText(pct+'%', x, y+8);
+        });
+      });
+      c.restore();
+    }
+  };
+
   new Chart(ctx, {
     type:'doughnut',
-    data:{
-      labels:['TR Savings','ΜΠΟΥΦ','ΠΕΤΣ','Sav Alpha','Sav NBG'],
-      datasets:[{ data:[2924,10000,10000,10000,10000], backgroundColor:['#10b981','#3b82f6','#8b5cf6','#f59e0b','#ef4444'], borderColor:'#111827', borderWidth:2 }]
-    },
+    data:{ labels, datasets:[{ data:vals, backgroundColor:colors, borderColor:'#111827', borderWidth:2 }] },
     options:{
-      responsive:true, maintainAspectRatio:false, cutout:'55%',
-      plugins:{ legend:{ position:'right', labels:{color:'#94a3b8',font:{size:11}} }, tooltip:{callbacks:{label:ctx=>`${ctx.label}: €${ctx.raw.toLocaleString()}`}} }
-    }
+      responsive:true, maintainAspectRatio:false, cutout:'50%',
+      plugins:{
+        legend:{ position:'right', labels:{color:'#94a3b8',font:{size:11}} },
+        tooltip:{callbacks:{label:c=>`${c.label}: ${fmtEur(c.raw)} (${(c.raw/totalCash*100).toFixed(1)}%)`}}
+      }
+    },
+    plugins:[cashLabelPlugin]
   });
 }
 
@@ -1433,11 +1790,14 @@ async function fetchUSAPrices() {
 // ============================================================
 // TABS
 // ============================================================
-function showTab(id) {
+function showTab(id, el) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  event.target.classList.add('active');
+  // find the tab button for this tab if no element passed
+  const btn = el || document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
+  if(btn) btn.classList.add('active');
+  else if(event && event.target) event.target.classList.add('active');
 }
 
 // ============================================================
