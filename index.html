@@ -704,73 +704,190 @@
   <div class="section-title">🏠 Ακίνητα</div>
   <div class="kpi-grid">
     <div class="kpi-card green">
-      <div class="kpi-label">Συνολική Εκτ. Αξία</div>
-      <div class="kpi-value" id="re-total">— (TBD)</div>
-      <div class="kpi-sub">Εκτίμηση αγοράς</div>
+      <div class="kpi-label">Μηνιαίο Εισόδημα</div>
+      <div class="kpi-value">€170</div>
+      <div class="kpi-sub">Αχαρνών — μερίδιο Βασίλη</div>
     </div>
     <div class="kpi-card gold">
-      <div class="kpi-label">Μηνιαίο Εισόδημα</div>
-      <div class="kpi-value" id="re-income">—</div>
-      <div class="kpi-sub">Ενοίκια καθαρά</div>
+      <div class="kpi-label">Κόστος Κτήσης</div>
+      <div class="kpi-value">€6.458</div>
+      <div class="kpi-sub">Αχαρνών + Καρπενήσι</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Αριθμός Ακινήτων</div>
-      <div class="kpi-value" id="re-count">2</div>
-      <div class="kpi-sub">Καταγεγραμμένα</div>
+      <div class="kpi-label">Αποσβένεται σε</div>
+      <div class="kpi-value">~32 μήνες</div>
+      <div class="kpi-sub">≈ Ιούλ 2029</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Yield (Εκτ.)</div>
-      <div class="kpi-value" id="re-yield">—</div>
-      <div class="kpi-sub">Μισθωτική απόδοση</div>
+      <div class="kpi-label">Yield (post-απόσβεση)</div>
+      <div class="kpi-value">31,6%</div>
+      <div class="kpi-sub">€170×12 / €6.458</div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">🏘️ Κατάλογος Ακινήτων</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th>Ακίνητο</th>
-          <th>Τύπος</th>
-          <th>Τοποθεσία</th>
-          <th>Εμβαδόν (τ.μ.)</th>
-          <th>Εκτ. Αξία (€)</th>
-          <th>Κόστος Κτήσης (€)</th>
-          <th>Κατάσταση</th>
-          <th>Ετήσιο Εισόδημα (€)</th>
-          <th>Σημειώσεις</th>
-        </tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>Διαμέρισμα Ιλίου</strong></td>
-            <td><span class="tag tag-stock">Διαμέρισμα</span></td>
-            <td>Ίλιον, Αθήνα</td>
-            <td>—</td>
-            <td style="color:var(--text-muted)">— (TBD)</td>
-            <td style="color:var(--text-muted)">Κληρονομιά</td>
-            <td><span style="color:var(--gold);font-size:11px;font-weight:600;">Αξιολόγηση</span></td>
-            <td>—</td>
-            <td style="font-size:11px;color:var(--text-muted)">Κληρονομιά — αξιολόγηση σε εξέλιξη</td>
-          </tr>
-          <tr>
-            <td><strong>Μονοκατοικία Ξυλόκαστρο</strong></td>
-            <td><span class="tag tag-stock">Μονοκατοικία</span></td>
-            <td>Μελίσσι, Ξυλόκαστρο</td>
-            <td>—</td>
-            <td style="color:var(--text-muted)">— (TBD)</td>
-            <td style="color:var(--text-muted)">Ιδιοκτησία</td>
-            <td><span style="color:var(--green);font-size:11px;font-weight:600;">Ιδιοκατοίκηση</span></td>
-            <td>—</td>
-            <td style="font-size:11px;color:var(--text-muted)">Θερινή/εξοχική κατοικία</td>
-          </tr>
-        </tbody>
-      </table>
+
+  <!-- Αχαρνών Progress Card -->
+  <div class="card" style="border-left:3px solid var(--green);">
+    <div class="card-title">🏘️ Ακίνητο Αχαρνών — Απόσβεση Κόστους Κτήσης</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+      Κοινό με Πάνο &amp; Πατέρα · Μισθωτήριο έως Μαρ 2028 · €830/μήνα σύνολο · Μερίδιο Βασίλη: <strong style="color:var(--text-primary);">€170/μήνα</strong>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:12px;color:var(--text-muted);">Πρόοδος Απόσβεσης</span>
+        <span style="font-size:13px;font-weight:700;color:var(--green);">18,4% (€1.190 / €6.458)</span>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:8px;height:18px;overflow:hidden;border:1px solid var(--border);">
+        <div style="width:18.4%;height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:8px;transition:width 0.5s;display:flex;align-items:center;padding-left:8px;">
+          <span style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;">€1.190</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Numbers Grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;">
+      <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΣΥΝΟΛΙΚΟ ΚΟΣΤΟΣ</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text-primary);">€6.458</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Αχαρνών €3.583 + Καρπενήσι €2.875</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΕΧΕΙ ΑΠΟΣΒΕΣΤΕΙ</div>
+        <div style="font-size:18px;font-weight:700;color:var(--green);">€1.190</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">7 μήνες × €170 (Απρ–Οκτ 2026)</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΥΠΟΛΟΙΠΟ</div>
+        <div style="font-size:18px;font-weight:700;color:var(--red,#f87171);">€5.268</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">~31 μήνες ακόμα → Ιούλ 2029</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+      📌 Μετά την απόσβεση: €170/μήνα = <strong style="color:var(--gold);">€2.040/έτος καθαρό εισόδημα</strong> · Yield <strong style="color:var(--gold);">31,6%</strong> επί κόστους
+    </div>
+
+    <!-- Pie Chart -->
+    <div style="margin-top:20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+      <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
+        <canvas id="acharnonPie" width="140" height="140"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--green);flex-shrink:0;"></div>
+          <span style="font-size:12px;color:var(--text-muted);">Αποσβέστηκε</span>
+          <span style="font-size:13px;font-weight:700;color:var(--green);margin-left:auto;padding-left:16px;">€1.190</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--red,#f87171);flex-shrink:0;"></div>
+          <span style="font-size:12px;color:var(--text-muted);">Υπόλοιπο</span>
+          <span style="font-size:13px;font-weight:700;color:var(--red,#f87171);margin-left:auto;padding-left:16px;">€5.268</span>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;display:flex;align-items:center;gap:8px;">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--gold);flex-shrink:0;"></div>
+          <span style="font-size:12px;color:var(--text-muted);">Σύνολο κόστους</span>
+          <span style="font-size:13px;font-weight:700;color:var(--gold);margin-left:auto;padding-left:16px;">€6.458</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">18,4% αποσβέστηκε · ~31 μήνες ακόμα</div>
+      </div>
     </div>
   </div>
-  <div class="card" style="border-left:3px solid var(--accent);">
-    <div class="card-title">📝 Σημείωση</div>
-    <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
-      <p>🚧 Τα στοιχεία αξιολόγησης (εμβαδόν, εκτιμώμενη αξία, εισόδημα) θα συμπληρωθούν σε επόμενη φάση.</p>
-      <p>📌 Τα ακίνητα αποτελούν σημαντικό κεφάλαιο που θα ενταχθεί στον συνολικό υπολογισμό net worth.</p>
+
+  <!-- Ίλιον Card -->
+  <div class="card" style="border-left:3px solid var(--gold);">
+    <div class="card-title">🏢 Διαμέρισμα Ιλίου — Εκτόρος 85, Α΄ Όροφος</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">
+      Ακίνητο νονού · 85τμ · Διαπραγμάτευση με DoValue σε εξέλιξη · Στόχος: εξαγορά &amp; ενοικίαση
+    </div>
+
+    <!-- Phase Tracker -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Φάσεις Επένδυσης</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <!-- Phase 1 -->
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);">
+          <div style="font-size:18px;line-height:1;padding-top:1px;">🔴</div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Φάση 1 — Διαπραγμάτευση DoValue</span>
+              <span style="font-size:11px;font-weight:600;color:#f87171;background:rgba(248,113,113,0.15);padding:2px 8px;border-radius:12px;">ΣΕ ΕΞΕΛΙΞΗ</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
+              Χρέος τρέχον: <strong style="color:var(--text-primary);">€77.000</strong> · Αρχικό δάνειο: €28.000 · Προσημείωση: €34.000<br>
+              Στόχος διαπραγμάτευσης: μείωση οφειλής πριν αγορά
+            </div>
+          </div>
+        </div>
+        <!-- Phase 2 -->
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);opacity:0.75;">
+          <div style="font-size:18px;line-height:1;padding-top:1px;">🟡</div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Φάση 2 — Κόστη Μετάβασης</span>
+              <span style="font-size:11px;font-weight:600;color:var(--gold);background:rgba(251,191,36,0.1);padding:2px 8px;border-radius:12px;">ΕΚΚΡΕΜΕΣ</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
+              Διαγραφή δανείου · Δικηγόρος · Ανακαίνιση · <em>Ύψος TBD μετά τη φάση 1</em>
+            </div>
+          </div>
+        </div>
+        <!-- Phase 3 -->
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.12);opacity:0.6;">
+          <div style="font-size:18px;line-height:1;padding-top:1px;">🟢</div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Φάση 3 — Ενοικίαση</span>
+              <span style="font-size:11px;font-weight:600;color:var(--green);background:rgba(74,222,128,0.1);padding:2px 8px;border-radius:12px;">ΜΕΛΛΟΝ</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
+              Εκτιμώμενο ενοίκιο αγοράς: €600–800/μήνα · Yield TBD βάσει τελικού κόστους
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fund Building -->
+    <div style="border-top:1px solid var(--border);padding-top:16px;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">💰 Αποθεματικό Κεφάλαιο (ΕΤΕ Savings)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΑΠΟΤΑΜΙΕΥΜΕΝΟ</div>
+          <div style="font-size:17px;font-weight:700;color:var(--green);">€3.750</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">€375/μήνα × 10μ</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΕΞΟΔΑ</div>
+          <div style="font-size:17px;font-weight:700;color:var(--red,#f87171);">€1.390</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">ΔΕΗ, νερό, ΔΕΣΦΑ κλπ</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΔΙΑΘΕΣΙΜΟ</div>
+          <div style="font-size:17px;font-weight:700;color:var(--gold);">€2.360</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">net αποθεματικό</div>
+        </div>
+      </div>
+      <!-- Fund Progress Bar -->
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--text-muted);">Πρόοδος Αποθεματικού (στόχος €10.000)</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold);">23,6%</span>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:8px;height:14px;overflow:hidden;border:1px solid var(--border);">
+          <div style="width:23.6%;height:100%;background:linear-gradient(90deg,var(--gold),#fcd34d);border-radius:8px;"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+          +€375/μήνα · Χρειάζονται ~21 μήνες για €10k στόχο
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Πετρούπολη Card -->
+  <div class="card" style="border-left:3px solid var(--text-muted);">
+    <div class="card-title">🏠 Κατοικία Πετρούπολης — Κύρια Κατοικία</div>
+    <div style="font-size:12px;color:var(--text-muted);">
+      Ιδιοκατοίκηση · Δεν συμπεριλαμβάνεται στους υπολογισμούς yield &amp; εισοδήματος
     </div>
   </div>
 </div>
@@ -1194,6 +1311,7 @@ function init() {
   drawCashPieChart();
   buildDivTimeline();
   setLastUpdated();
+  setTimeout(buildAcharnonPie, 100);
 }
 
 function setLastUpdated() {
@@ -1853,6 +1971,62 @@ function showNotification(msg) {
 // START
 // ============================================================
 document.addEventListener('DOMContentLoaded', init);
+
+// ============================================================
+// ΑΧΑΡΝΩΝ PIE CHART
+// ============================================================
+function buildAcharnonPie() {
+  const canvas = document.getElementById('acharnonPie');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8;
+
+  const recovered = 1190, remaining = 5268, total = 6458;
+  const slices = [
+    { value: recovered, color: '#22c55e' },  // green
+    { value: remaining, color: '#f87171' }   // red
+  ];
+  const totalVal = slices.reduce((s,sl) => s + sl.value, 0);
+
+  ctx.clearRect(0, 0, W, H);
+  let startAngle = -Math.PI / 2;
+  slices.forEach(sl => {
+    const sweep = (sl.value / totalVal) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + sweep);
+    ctx.closePath();
+    ctx.fillStyle = sl.color;
+    ctx.fill();
+    startAngle += sweep;
+  });
+
+  // donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.52, 0, 2 * Math.PI);
+  // always dark theme
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim() || '#0a0e1a';
+  ctx.fill();
+
+  // center text
+  const pct = Math.round(recovered / total * 10) / 10;
+  ctx.fillStyle = '#22c55e';
+  ctx.font = 'bold 18px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('18.4%', cx, cy - 7);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Arial';
+  ctx.fillText('αποσβ.', cx, cy + 10);
+}
+
+// rebuild pie on tab click (in case canvas wasn't visible)
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab === 'realestate') setTimeout(buildAcharnonPie, 50);
+  });
+});
 </script>
 </body>
 </html>
