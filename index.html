@@ -346,8 +346,9 @@
       </div>
       <div style="margin-top:16px;">
         <button class="btn-update" onclick="applyAllPrices()">✅ Εφαρμογή &amp; Ενημέρωση</button>
+        <button onclick="clearSavedPrices()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;margin-left:8px;">🔄 Reset</button>
       </div>
-      <div id="pricesLastSaved" style="font-size:11px;color:var(--text-muted);margin-top:16px;"></div>
+      <div id="pricesLastSaved" style="font-size:12px;color:var(--accent);margin-top:16px;font-weight:600;"></div>
     </div>
   </div>
 
@@ -493,7 +494,7 @@
       <div class="kpi-sub up">+€145 (+2.9%)</div>
     </div>
     <div class="kpi-card red">
-      <div class="kpi-label">ALWN (545 μτχ)</div>
+      <div class="kpi-label">ALWN (145 μτχ)</div>
       <div class="kpi-value">€7.341</div>
       <div class="kpi-sub down">-€1.341 (-15.4%)</div>
     </div>
@@ -570,9 +571,9 @@
       <div class="kpi-sub">ΜΠΟΥΦ / ΠΕΤΣ</div>
     </div>
     <div class="kpi-card gold">
-      <div class="kpi-label">TR Savings</div>
-      <div class="kpi-value">€3.000</div>
-      <div class="kpi-sub">+€250/μήνα πλάνο</div>
+      <div class="kpi-label">TR Cash (2,75%)</div>
+      <div class="kpi-value">€2.911</div>
+      <div class="kpi-sub">+€15,27 interest earned</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Net Worth (Total)</div>
@@ -586,7 +587,9 @@
       <table>
         <thead><tr><th>Λογαριασμός</th><th>Υπόλοιπο</th><th>Σκοπός</th></tr></thead>
         <tbody>
-          <tr><td><strong>TR Savings</strong></td><td class="up">€3.000</td><td style="color:var(--text-muted);font-size:12px;">Επενδύσεις TR / ETF</td></tr>
+          <tr><td><strong>TR Cash</strong></td><td class="up">€2.911</td><td style="color:var(--text-muted);font-size:12px;">Τοκίζεται @ 2,75%</td></tr>
+          <tr><td><strong>Πειραιώς Cash</strong></td><td>€3.383</td><td style="color:var(--text-muted);font-size:12px;">Pending απόφαση</td></tr>
+          <tr><td><strong>Freedom24 Cash</strong></td><td>€81</td><td style="color:var(--text-muted);font-size:12px;">USD + EUR</td></tr>
           <tr><td><strong>ΜΠΟΥΦ</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Emergency fund</td></tr>
           <tr><td><strong>ΠΕΤΣ</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Γενικές αποταμιεύσεις</td></tr>
           <tr><td><strong>Sav Alpha Bank</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Αποθεματικό</td></tr>
@@ -905,70 +908,67 @@ function fmtPct(n, decimals=1, sign=true) { return (sign&&n>=0?'+':'')+fmt(n,dec
 const holdings = [
   // ─── PIRAEUS ──────────────────────────────────────────────────────────────
   // NVDA: Piraeus, 131sh, current price €226.32 (was €183 — big uplift)
-  {ticker:'NVDA',    name:'NVIDIA Corp.',              cat:'Stock-US', shares:131,    avgCost:76.65,   price:226.32,  currency:'USD', invested:10041,  value:27162,  pl:17121,  roi:170.5, divAnn:6,    divYoC:0.06, market:'US'},
+  {ticker:'CMFC',    name:'Capital Maritime (IPO)',    cat:'Stock',    shares:217,    avgCost:7.50,    price:7.44,    currency:'EUR', invested:1628,   value:1614,   pl:-13,    roi:-0.80, divAnn:0,    divYoC:0,    market:'GR'},
+  {ticker:'NVDA',    name:'NVIDIA Corp.',              cat:'Stock-US', shares:131,    avgCost:77.63,   price:166.19,  currency:'EUR', invested:10170,  value:21771,  pl:11601,  roi:114.1, divAnn:6,    divYoC:0.06, market:'US'},
   // MSFT: Piraeus, 12sh, price €541.15→€541.15 USD (13/10/2026)
-  {ticker:'MSFT',    name:'Microsoft Corp.',            cat:'Stock-US', shares:12,     avgCost:392.95,  price:541.15,  currency:'USD', invested:4715,   value:5947,   pl:1232,   roi:26.1,  divAnn:42,   divYoC:0.89, market:'US'},
+  {ticker:'MSFT',    name:'Microsoft Corp.',            cat:'Stock-US', shares:12,     avgCost:399.756, price:523.00,  currency:'EUR', invested:4797,   value:6276,   pl:1479,   roi:30.8,  divAnn:42,   divYoC:0.89, market:'US'},
   // BABA: Piraeus, 20sh, price $110.78 (13/10/2026)
-  {ticker:'BABA',    name:'Alibaba Group',              cat:'Stock-US', shares:20,     avgCost:67.53,   price:110.78,  currency:'USD', invested:1351,   value:2032,   pl:681,    roi:50.4,  divAnn:21,   divYoC:1.55, market:'US'},
+  {ticker:'BABA',    name:'Alibaba Group',              cat:'Stock-US', shares:20,     avgCost:69.138,  price:94.36,   currency:'EUR', invested:1383,   value:1887,   pl:504,    roi:36.5,  divAnn:21,   divYoC:1.52, market:'US'},
   // ΓΕΚ ΤΕΡΝΑ: Piraeus, 135sh, price €40.82 (13/10/2026)
-  {ticker:'ΓΕΚΤΕΡΝΑ',name:'ΓΕΚ ΤΕΡΝΑ Α.Ε.',           cat:'Stock',    shares:135,    avgCost:22.74,   price:40.82,   currency:'EUR', invested:3070,   value:5511,   pl:2441,   roi:79.5,  divAnn:59,   divYoC:1.92, market:'GR'},
+  {ticker:'ΓΕΚΤΕΡΝΑ',name:'ΓΕΚ ΤΕΡΝΑ Α.Ε.',           cat:'Stock',    shares:135,    avgCost:21.459,  price:42.16,   currency:'EUR', invested:2897,   value:5692,   pl:2795,   roi:96.4,  divAnn:59,   divYoC:2.03, market:'GR'},
   // ΔΕΗ: Piraeus 406sh (400+6 αγορά 11/11/2026 @€23.78), avgCost weighted 16.3789
-  {ticker:'ΔΕΗ',     name:'Δημόσια Επιχείρηση Ηλεκτρισμού', cat:'Stock', shares:406,  avgCost:16.3789, price:22.30,   currency:'EUR', invested:6650,   value:9051,   pl:2401,   roi:36.1,  divAnn:120,  divYoC:1.80, market:'GR'},
+  {ticker:'ΔΕΗ',     name:'Δημόσια Επιχείρηση Ηλεκτρισμού', cat:'Stock', shares:406,  avgCost:16.389,  price:23.10,   currency:'EUR', invested:6654,   value:9379,   pl:2725,   roi:41.0,  divAnn:120,  divYoC:1.80, market:'GR'},
   // ΑΚΤΩΡ: Piraeus, 450sh, price €9.70 (13/10/2026)
-  {ticker:'AKTR',    name:'ΑΚΤΩΡ Α.Ε.',                cat:'Stock',    shares:450,    avgCost:9.03,    price:9.70,    currency:'EUR', invested:4064,   value:4365,   pl:301,    roi:7.4,   divAnn:0,    divYoC:0,    market:'GR'},
+  {ticker:'AKTR',    name:'ΑΚΤΩΡ Α.Ε.',                cat:'Stock',    shares:450,    avgCost:9.3393,  price:10.16,   currency:'EUR', invested:4203,   value:4572,   pl:369,    roi:8.78,  divAnn:0,    divYoC:0,    market:'GR'},
   // ΕΤΕ: Piraeus 210sh, price €16.30 (13/10/2026)
-  {ticker:'ΕΤΕ',     name:'Εθνική Τράπεζα',            cat:'Stock',    shares:210,    avgCost:9.41,    price:16.30,   currency:'EUR', invested:1976,   value:3423,   pl:1447,   roi:73.2,  divAnn:89,   divYoC:4.50, market:'GR'},
+  {ticker:'ΕΤΕ',     name:'Εθνική Τράπεζα',            cat:'Stock',    shares:210,    avgCost:9.4866,  price:17.56,   currency:'EUR', invested:1992,   value:3688,   pl:1696,   roi:85.1,  divAnn:89,   divYoC:4.46, market:'GR'},
   // ΠΕΙΡ: Piraeus 355sh, price €9.782 (13/10/2026)
-  {ticker:'ΠΕΙΡ',    name:'Τράπεζα Πειραιώς',          cat:'Stock',    shares:355,    avgCost:4.11,    price:9.782,   currency:'EUR', invested:1459,   value:3473,   pl:2014,   roi:138.0, divAnn:106,  divYoC:7.27, market:'GR'},
+  {ticker:'ΠΕΙΡ',    name:'Τράπεζα Πειραιώς',          cat:'Stock',    shares:355,    avgCost:4.1612,  price:10.05,   currency:'EUR', invested:1477,   value:3568,   pl:2091,   roi:141.6, divAnn:106,  divYoC:7.17, market:'GR'},
   // ΑΛΦΑ: Piraeus 500sh, price €4.294 (13/10/2026)
-  {ticker:'ΑΛΦΑ',    name:'Alpha Services & Participations', cat:'Stock', shares:500,  avgCost:4.05,    price:4.294,   currency:'EUR', invested:2025,   value:2147,   pl:122,    roi:6.0,   divAnn:9,    divYoC:0.44, market:'GR'},
-  // ΔΕΗΕ: Piraeus 139sh, price ~€6.98 (est.)
-  {ticker:'ΔΕΗΕ',    name:'ΔΕΗ Ανανεώσιμες',           cat:'Stock',    shares:139,    avgCost:18.63,   price:6.98,    currency:'EUR', invested:2590,   value:970,    pl:-1620,  roi:-62.5, divAnn:0,    divYoC:0,    market:'GR'},
-  // ΕΛΠΕ: Piraeus 5sh, price ~€7.84 (est.)
-  {ticker:'ΕΛΠΕ',    name:'Ελληνικά Πετρέλαια',         cat:'Stock',    shares:5,      avgCost:6.95,    price:7.84,    currency:'EUR', invested:35,     value:39,     pl:4,      roi:11.5,  divAnn:6,    divYoC:17.1, market:'GR'},
+  {ticker:'ΑΛΦΑ',    name:'Alpha Services & Participations', cat:'Stock', shares:500,  avgCost:4.0807,  price:4.752,   currency:'EUR', invested:2040,   value:2376,   pl:336,    roi:16.5,  divAnn:9,    divYoC:0.44, market:'GR'},
   // GEK Bond: 7×€1000 face value, coupon ~7% → €490/yr
-  {ticker:'ΓΕΚ Bond', name:'ΓΕΚ ΤΕΡΝΑ Ομόλογο 7×€1000', cat:'Bond',   shares:7,      avgCost:1000,    price:929.0,   currency:'EUR', invested:7000,   value:6503,   pl:-497,   roi:-7.1,  divAnn:490,  divYoC:7.00, market:'GR'},
+  {ticker:'ΓΕΚ Bond', name:'ΓΕΚ ΤΕΡΝΑ Ομόλογο 7×€1000', cat:'Bond',   shares:7,      avgCost:1000,    price:1003.0,  currency:'EUR', invested:7000,   value:7021,   pl:21,     roi:0.30,  divAnn:490,  divYoC:7.00, market:'GR'},
   // AKTOR Bond: 4×€1000 face, price €1013 (13/10/2026)
-  {ticker:'AKTOR Bond',name:'ΑΚΤΩΡ Ομόλογο 4×€1000',   cat:'Bond',    shares:4,      avgCost:1000,    price:1013.0,  currency:'EUR', invested:4000,   value:4052,   pl:52,     roi:1.3,   divAnn:280,  divYoC:7.00, market:'GR'},
+  {ticker:'AKTOR Bond',name:'ΑΚΤΩΡ Ομόλογο 4×€1000',   cat:'Bond',    shares:4,      avgCost:1000,    price:1003.0,  currency:'EUR', invested:4000,   value:4012,   pl:12,     roi:0.30,  divAnn:280,  divYoC:7.00, market:'GR'},
   // ─── TRADE REPUBLIC ───────────────────────────────────────────────────────
   // VUAA: Piraeus, 78sh @€135.34 (13/10/2026)
-  {ticker:'VUAA',    name:'Vanguard S&P500 UCITS Acc',  cat:'ETF',      shares:78,     avgCost:102.85,  price:135.34,  currency:'EUR', invested:8022,   value:10557,  pl:2535,   roi:31.6,  divAnn:0,    divYoC:0,    market:'EU'},
+  {ticker:'VUAA',    name:'Vanguard S&P500 UCITS Acc',  cat:'ETF',      shares:78,     avgCost:104.965, price:133.615, currency:'EUR', invested:8187,   value:10422,  pl:2235,   roi:27.3,  divAnn:0,    divYoC:0,    market:'EU'},
   // VWCE: TR, 7sh (6+1 αγορά 11/11/2026 @€169.92), avgCost weighted 172.3543
-  {ticker:'VWCE',    name:'Vanguard FTSE All-World Acc', cat:'ETF',     shares:7,      avgCost:172.3543,price:172.76,  currency:'EUR', invested:1207,   value:1209,   pl:3,      roi:0.2,   divAnn:0,    divYoC:0,    market:'EU'},
+  {ticker:'VWCE',    name:'Vanguard FTSE All-World Acc', cat:'ETF',     shares:7,      avgCost:163.84,  price:170.90,  currency:'EUR', invested:1147,   value:1196,   pl:49,     roi:4.27,  divAnn:0,    divYoC:0,    market:'EU'},
   // BYD: TR, 229.718955sh @€8.35 avg (from TR statement 13/10/2026)
-  {ticker:'BYD',     name:'BYD Co. Ltd.',               cat:'Stock-US', shares:229.718955,avgCost:8.35,  price:8.35,    currency:'EUR', invested:1918,   value:1918,   pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'HK'},
+  {ticker:'BYD',     name:'BYD Co. Ltd.',               cat:'Stock-US', shares:229.718955,avgCost:10.03, price:7.52,    currency:'EUR', invested:2304,   value:1727,   pl:-577,   roi:-25.0, divAnn:0,    divYoC:0,    market:'HK'},
   // BOND.TR: TR, 86sh @€4.51 (from TR statement 13/10/2026)
-  {ticker:'BOND.TR', name:'Global Aggregate Bond ESG EUR',cat:'ETF',    shares:86,     avgCost:4.51,    price:4.51,    currency:'EUR', invested:388,    value:388,    pl:0,      roi:0,     divAnn:8,    divYoC:2.06, market:'EU'},
+  {ticker:'AGGG',    name:'Global Aggregate Bond ESG EUR',cat:'ETF',    shares:86,     avgCost:4.56,    price:4.53,    currency:'EUR', invested:392,    value:390,    pl:-3,     roi:-0.77, divAnn:8,    divYoC:2.04, market:'EU'},
   // O.TR: TR, 8.081081sh (7.081081+1 αγορά 11/11/2026 @€53.15), avgCost weighted 49.7939
-  {ticker:'O.TR',    name:'Realty Income Corp.',         cat:'Stock-US', shares:8.081081,avgCost:49.7939, price:49.32,   currency:'EUR', invested:402,    value:399,    pl:-4,     roi:-0.9,  divAnn:28,   divYoC:7.0,  market:'US'},
+  {ticker:'O.TR',    name:'Realty Income Corp.',         cat:'Stock-US', shares:8.081081,avgCost:52.85,   price:53.40,   currency:'EUR', invested:427,    value:432,    pl:4,      roi:1.0,   divAnn:28,   divYoC:6.56, market:'US'},
   // VUAA.TR: TR, 22sh (19+3 αγορά 11/11/2026 @€131.91), avgCost weighted 134.5268
-  {ticker:'VUAA.TR', name:'S&P 500 USD Acc (iShares)',   cat:'ETF',    shares:22,     avgCost:134.5268,price:134.94,  currency:'EUR', invested:2960,   value:2969,   pl:9,      roi:0.3,   divAnn:0,    divYoC:0,    market:'EU'},
+  {ticker:'VUAA.TR', name:'Vanguard S&P500 USD Acc (TR)',cat:'ETF',    shares:22,     avgCost:131.91,  price:133.37,  currency:'EUR', invested:2902,   value:2934,   pl:32,     roi:1.10,  divAnn:0,    divYoC:0,    market:'EU'},
   // ─── FREEDOM24 ─────────────────────────────────────────────────────────────
   // MTLN: Freedom24, 223sh @$48.86→€44.73
-  {ticker:'ΜΥΤΙΛ',   name:'Μυτιληναίος Α.Ε.',            cat:'Stock',    shares:223,    avgCost:41.62,   price:48.22,   currency:'EUR', invested:9281,   value:10753,  pl:1472,   roi:15.9,  divAnn:328,  divYoC:3.53, market:'GR'},
+  {ticker:'ΜΤΛΝ',    name:'Metlen Energy & Metals',       cat:'Stock',    shares:225,    avgCost:41.855,  price:46.02,   currency:'EUR', invested:9417,   value:10355,  pl:938,    roi:9.96,  divAnn:328,  divYoC:3.48, market:'GR'},
   // META: Freedom24, 2sh @$734.32→€672 (was €785 — price down)
-  {ticker:'META',    name:'Meta Platforms Inc.',         cat:'Stock-US', shares:2,      avgCost:143.01,  price:768.20,  currency:'USD', invested:286,    value:1409,   pl:1123,   roi:392.7, divAnn:6,    divYoC:2.10, market:'US'},
+  {ticker:'META',    name:'Meta Platforms Inc.',         cat:'Stock-US', shares:2,      avgCost:143.01,  price:623.52,  currency:'EUR', invested:286,    value:1247,   pl:961,    roi:336.0, divAnn:6,    divYoC:2.10, market:'US'},
   // C: Freedom24, 2sh @$129.74 (13/10/2026)
-  {ticker:'C',       name:'Citigroup Inc.',              cat:'Stock-US', shares:2,      avgCost:51.81,   price:129.74,  currency:'USD', invested:104,    value:237,    pl:133,    roi:127.9, divAnn:10,   divYoC:9.62, market:'US'},
+  {ticker:'C',       name:'Citigroup Inc.',              cat:'Stock-US', shares:2,      avgCost:51.81,   price:124.81,  currency:'EUR', invested:104,    value:250,    pl:146,    roi:140.5, divAnn:10,   divYoC:9.62, market:'US'},
   // SCHD: Freedom24, 6sh @$33.22 (13/10/2026)
-  {ticker:'SCHD',    name:'Schwab US Dividend Equity ETF',cat:'ETF',    shares:6,      avgCost:25.56,   price:33.22,   currency:'USD', invested:153,    value:182,    pl:29,     roi:19.0,  divAnn:13,   divYoC:8.50, market:'US'},
+  {ticker:'SCHD',    name:'Schwab US Dividend Equity ETF',cat:'ETF',    shares:6,      avgCost:25.56,   price:35.99,   currency:'EUR', invested:153,    value:216,    pl:63,     roi:41.2,  divAnn:13,   divYoC:8.50, market:'US'},
   // FCX: Freedom24, 2sh @$71.97 (13/10/2026)
-  {ticker:'FCX',     name:'Freeport-McMoRan Inc.',       cat:'Stock-US', shares:2,      avgCost:44.41,   price:71.97,   currency:'USD', invested:89,     value:132,    pl:43,     roi:48.3,  divAnn:2,    divYoC:2.25, market:'US'},
+  {ticker:'FCX',     name:'Freeport-McMoRan Inc.',       cat:'Stock-US', shares:2,      avgCost:44.41,   price:60.38,   currency:'EUR', invested:89,     value:121,    pl:32,     roi:35.9,  divAnn:2,    divYoC:2.25, market:'US'},
   // AMZN: Freedom24, 3sh @$260.86 (13/10/2026)
-  {ticker:'AMZN',    name:'Amazon.com Inc.',             cat:'Stock-US', shares:3,      avgCost:97.49,   price:260.86,  currency:'USD', invested:292,    value:716,    pl:424,    roi:145.2, divAnn:0,    divYoC:0,    market:'US'},
+  {ticker:'AMZN',    name:'Amazon.com Inc.',             cat:'Stock-US', shares:3,      avgCost:97.49,   price:270.40,  currency:'EUR', invested:292,    value:811,    pl:519,    roi:177.7, divAnn:0,    divYoC:0,    market:'US'},
   // SOFI: Freedom24, 25sh @$15.20 (13/10/2026)
-  {ticker:'SOFI',    name:'SoFi Technologies Inc.',      cat:'Stock-US', shares:25,     avgCost:5.80,    price:15.20,   currency:'USD', invested:145,    value:348,    pl:203,    roi:140.0, divAnn:0,    divYoC:0,    market:'US'},
+  {ticker:'SOFI',    name:'SoFi Technologies Inc.',      cat:'Stock-US', shares:25,     avgCost:5.80,    price:15.69,   currency:'EUR', invested:145,    value:392,    pl:247,    roi:170.3, divAnn:0,    divYoC:0,    market:'US'},
   // TDOC: Freedom24, 10sh @$5.93 (13/10/2026)
-  {ticker:'TDOC',    name:'Teladoc Health Inc.',         cat:'Stock-US', shares:10,     avgCost:27.27,   price:5.93,    currency:'USD', invested:273,    value:54,     pl:-219,   roi:-80.2, divAnn:0,    divYoC:0,    market:'US'},
+  {ticker:'TDOC',    name:'Teladoc Health Inc.',         cat:'Stock-US', shares:10,     avgCost:27.27,   price:8.70,    currency:'EUR', invested:273,    value:87,     pl:-186,   roi:-68.1, divAnn:0,    divYoC:0,    market:'US'},
   // ─── BINANCE / CRYPTO ──────────────────────────────────────────────────────
   // ETH: Binance spot 3.11sh + WBETH 3.725sh = combined as ETH display
   // Showing separately: ETH spot and WBETH staked
-  {ticker:'ETH',     name:'Ethereum (Spot)',             cat:'Crypto',   shares:3.1110, avgCost:1720,    price:2255,    currency:'EUR', invested:5349,   value:7012,   pl:1663,   roi:31.1,  divAnn:0,    divYoC:0,    market:'Crypto'},
-  {ticker:'WBETH',   name:'Wrapped Beacon ETH (Staked)', cat:'Crypto',   shares:3.7246, avgCost:2100,    price:2496,    currency:'EUR', invested:7823,   value:9296,   pl:1473,   roi:18.8,  divAnn:0,    divYoC:0,    market:'Crypto'},
+  {ticker:'ETH',     name:'Ethereum (Binance Earn)',     cat:'Crypto',   shares:3.11417843,avgCost:1720, price:1781,    currency:'EUR', invested:5357,   value:5546,   pl:189,    roi:3.5,   divAnn:0,    divYoC:0,    market:'Crypto', staked:true},
+  {ticker:'WBETH',   name:'Wrapped Beacon ETH (Spot)',   cat:'Crypto',   shares:3.72459303,avgCost:1974, price:1974,    currency:'EUR', invested:7353,   value:7353,   pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto'},
   // SOL: Binance, 33.45113777sh €3.235.56 (13/10/2026)
-  {ticker:'SOL',     name:'Solana',                      cat:'Crypto',   shares:33.4511,avgCost:83.72,   price:96.72,   currency:'EUR', invested:2798,   value:3236,   pl:438,    roi:15.7,  divAnn:0,    divYoC:0,    market:'Crypto'},
+  {ticker:'SOL',     name:'Solana (Binance Spot+Earn)',  cat:'Crypto',   shares:33.55460188,avgCost:73.74,price:73.74,  currency:'EUR', invested:2474,   value:2474,   pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', staked:true},
   // ADA: Binance, 10.649sh @$0.2523→€0.2309
-  {ticker:'ADA',     name:'Cardano',                     cat:'Crypto',   shares:10649.4,avgCost:0.502,   price:0.2126,  currency:'EUR', invested:5346,   value:2264,   pl:-3082,  roi:-57.7, divAnn:0,    divYoC:0,    market:'Crypto'},
+  {ticker:'ADA',     name:'Cardano (Binance)',            cat:'Crypto',   shares:10649.43638814,avgCost:0.502,price:0.157,currency:'EUR', invested:5346,   value:1672,   pl:-3674,  roi:-68.7, divAnn:0,    divYoC:0,    market:'Crypto'},
   // MANA: Binance, 459.6sh @$0.0977→€0.0894
   {ticker:'MANA',    name:'Decentraland',                cat:'Crypto',   shares:459.6,  avgCost:2.42,    price:0.0827,  currency:'EUR', invested:1112,   value:38,     pl:-1074,  roi:-96.6, divAnn:0,    divYoC:0,    market:'Crypto'},
   // BEAMX: Binance, 11.822.5sh €29.09 total (13/10/2026)
@@ -979,30 +979,30 @@ const holdings = [
   {ticker:'COTI',    name:'COTI',                        cat:'Crypto',   shares:3067.3, avgCost:0.0693,  price:0.01130, currency:'EUR', invested:213,    value:35,     pl:-178,   roi:-83.6, divAnn:0,    divYoC:0,    market:'Crypto'},
   // ─── BITPANDA ────────────────────────────────────────────────────────────
   // ETH: Bitpanda, 0.524sh €1.180.00 (13/10/2026) — "Available on Earn"
-  {ticker:'ETH (BP)', name:'Ethereum (Bitpanda)',         cat:'Crypto',   shares:0.524,  avgCost:1065,    price:2252,    currency:'EUR', invested:558,    value:1180,   pl:622,    roi:111.5, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
+  {ticker:'ETH (BP)', name:'Ethereum (Bitpanda Earn)',    cat:'Crypto',   shares:0.52523507,avgCost:1065,  price:1778,    currency:'EUR', invested:559,    value:934,    pl:375,    roi:67.1,  divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda', staked:true},
   // ADA: Bitpanda, 3.756.9591sh €797.67 (13/10/2026) — "Available on Earn"
-  {ticker:'ADA (BP)', name:'Cardano (Bitpanda)',          cat:'Crypto',   shares:3756.96,avgCost:0.502,   price:0.2123,  currency:'EUR', invested:1886,   value:798,    pl:-1088,  roi:-57.7, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
+  {ticker:'ADA (BP)', name:'Cardano (Bitpanda Earn)',     cat:'Crypto',   shares:3762.78398142,avgCost:0.502,price:0.157, currency:'EUR', invested:1889,   value:591,    pl:-1298,  roi:-68.7, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda', staked:true},
   // NEO: Bitpanda, 28.012sh €59.99 (13/10/2026)
-  {ticker:'NEO',      name:'NEO',                         cat:'Crypto',   shares:28.012, avgCost:7.18,    price:2.141,   currency:'EUR', invested:201,    value:60,     pl:-141,   roi:-70.1, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
+  {ticker:'NEO',      name:'NEO (Bitpanda)',               cat:'Crypto',   shares:28.01203751,avgCost:7.18,price:1.596,   currency:'EUR', invested:201,    value:45,     pl:-156,   roi:-77.6, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // SHIB: Bitpanda, 4.391,159.49sh €20.48 (13/10/2026)
-  {ticker:'SHIB',     name:'Shiba Inu',                   cat:'Crypto',   shares:4391159,avgCost:0.0000123,price:0.00000467,currency:'EUR',invested:54,    value:20,     pl:-34,    roi:-62.9, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
+  {ticker:'SHIB',     name:'Shiba Inu (Bitpanda)',         cat:'Crypto',   shares:4391159.49057764,avgCost:0.0000039,price:0.0000039,currency:'EUR',invested:17, value:17,  pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // ETHW: Bitpanda, 0.5sh €0.12 (13/10/2026) — EthereumPoW fork, negligible
   {ticker:'ETHW',     name:'EthereumPoW',                 cat:'Crypto',   shares:0.5,    avgCost:0.00,    price:0.24,    currency:'EUR', invested:0,      value:0,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // XRP: Bitpanda, 0.0718sh €0.09 (13/10/2026) — negligible dust
   {ticker:'XRP (BP)', name:'XRP (Bitpanda)',              cat:'Crypto',   shares:0.0718, avgCost:0.00,    price:1.254,   currency:'EUR', invested:0,      value:0,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Bitpanda'},
   // ─── CRYPTO.COM ──────────────────────────────────────────────────────────
   // ETH: Crypto.com, 1sh €2.268.93 (13/10/2026)
-  {ticker:'ETH (CDC)', name:'Ethereum (Crypto.com)',       cat:'Crypto',   shares:1,      avgCost:160.06,  price:2269,    currency:'EUR', invested:160,    value:2269,   pl:2109,   roi:1317.6,divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
+  {ticker:'ETH (CDC)', name:'Ethereum (Crypto.com)',       cat:'Crypto',   shares:1,      avgCost:160.06,  price:1816.42, currency:'EUR', invested:160,    value:1816,   pl:1656,   roi:1035.0,divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // ADA: Crypto.com, 965sh €205.40 (13/10/2026)
-  {ticker:'ADA (CDC)', name:'Cardano (Crypto.com)',        cat:'Crypto',   shares:965,    avgCost:0.05,    price:0.2129,  currency:'EUR', invested:48,     value:205,    pl:157,    roi:327.1, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
+  {ticker:'ADA (CDC)', name:'Cardano (Crypto.com)',        cat:'Crypto',   shares:965,    avgCost:0.05,    price:0.160,   currency:'EUR', invested:48,     value:154,    pl:106,    roi:220.8, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // SYN: Crypto.com, 450.15sh €83.68 (13/10/2026) — Synapse
-  {ticker:'SYN',       name:'Synapse',                     cat:'Crypto',   shares:450.15, avgCost:1.20,    price:0.1859,  currency:'EUR', invested:540,    value:84,     pl:-456,   roi:-84.4, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
+  {ticker:'SYN',       name:'Synapse (Crypto.com)',         cat:'Crypto',   shares:450.15, avgCost:1.20,    price:0.1143,  currency:'EUR', invested:540,    value:51,     pl:-489,   roi:-90.6, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // POL: Crypto.com, 500sh €46.95 (13/10/2026) — Polygon Ecosystem Token
-  {ticker:'POL',       name:'Polygon Ecosystem Token',     cat:'Crypto',   shares:500,    avgCost:0.35,    price:0.0939,  currency:'EUR', invested:175,    value:47,     pl:-128,   roi:-73.1, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
+  {ticker:'POL',       name:'Polygon Ecosystem Token',     cat:'Crypto',   shares:500,    avgCost:0.35,    price:0.0822,  currency:'EUR', invested:175,    value:41,     pl:-134,   roi:-76.6, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // NEO: Crypto.com, 21sh €45.84 (13/10/2026)
-  {ticker:'NEO (CDC)', name:'NEO (Crypto.com)',             cat:'Crypto',   shares:21,     avgCost:7.18,    price:2.183,   currency:'EUR', invested:151,    value:46,     pl:-105,   roi:-69.5, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
+  {ticker:'NEO (CDC)', name:'NEO (Crypto.com)',             cat:'Crypto',   shares:21,     avgCost:7.18,    price:1.641,   currency:'EUR', invested:151,    value:34,     pl:-117,   roi:-77.5, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // FLOKI: Crypto.com, 1.010.3sh €23.98 (13/10/2026)
-  {ticker:'FLOKI',     name:'Floki Inu',                   cat:'Crypto',   shares:1010.3, avgCost:0.05,    price:0.02373, currency:'EUR', invested:51,     value:24,     pl:-27,    roi:-52.9, divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
+  {ticker:'FLOKI',     name:'Floki Inu (Crypto.com)',       cat:'Crypto',   shares:1010300,avgCost:0.000019,price:0.000019,currency:'EUR', invested:19,     value:19,     pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // GAS: Crypto.com, 0.589sh €0.71 (13/10/2026) — NEO GAS, dust
   {ticker:'GAS',       name:'GAS (NEO)',                    cat:'Crypto',   shares:0.589,  avgCost:0.00,    price:1.206,   currency:'EUR', invested:0,      value:1,      pl:0,      roi:0,     divAnn:0,    divYoC:0,    market:'Crypto', platform:'Crypto.com'},
   // STRAX: Crypto.com, 1.289.2sh €0.01 (13/10/2026) — dust
@@ -1010,20 +1010,20 @@ const holdings = [
   // MOH: Freedom24 position
   {ticker:'ΜΟΤΡ',    name:'Motor Oil Hellas',             cat:'Stock',    shares:40,     avgCost:46.25,   price:68.80,   currency:'EUR', invested:1850,   value:2752,   pl:902,    roi:48.8,  divAnn:120,  divYoC:6.49, market:'GR'},
   // INTC: Freedom24 — small position, price €13.54 ($14.79)
-  {ticker:'INTC',    name:'Intel Corporation',           cat:'Stock-US', shares:6,      avgCost:25.47,   price:101.35,  currency:'USD', invested:153,    value:608,    pl:455,    roi:297.4, divAnn:0,    divYoC:0,    market:'US'},
+  {ticker:'INTC',    name:'Intel Corporation',           cat:'Stock-US', shares:6,      avgCost:30.635,  price:61.20,   currency:'EUR', invested:184,    value:367,    pl:183,    roi:99.5,  divAnn:0,    divYoC:0,    market:'US'},
   // ─── KEM (NBG Securities / Sofi — joint) ────────────────────────────────
   // ΑΒΑΞ: KEM, 700sh in Piraeus + 1450sh KEM = clarified: Piraeus shows 700sh, KEM holds 1450sh
   // Using total KEM-only portion: 1450sh (separate from Piraeus direct holdings)
-  {ticker:'ΑΒΑΞ (KEM)',name:'ΑΒΑΞ Κατασκευαστική',     cat:'Stock',    shares:1450,   avgCost:3.47,    price:3.57,    currency:'EUR', invested:5032,   value:5177,   pl:145,    roi:2.9,   divAnn:93,   divYoC:1.85, market:'GR', kem:true},
+  {ticker:'ΑΒΑΞ (KEM)',name:'ΑΒΑΞ Κατασκευαστική (KEM)',cat:'Stock',    shares:1450,   avgCost:3.5351,  price:3.415,   currency:'EUR', invested:5126,   value:4952,   pl:-174,   roi:-3.4,  divAnn:94,   divYoC:1.83, market:'GR', kem:true},
   // ALWN: KEM, 400sh in Piraeus + 145sh KEM = clarified
-  {ticker:'ALWN (KEM)',name:'Allwyn Entertainment AG (πρ. ΟΠΑΠ)',cat:'Stock',shares:545,  avgCost:15.93,   price:12.085,  currency:'EUR', invested:8682,   value:6586,   pl:-2096,  roi:-24.1, divAnn:654,  divYoC:7.53, market:'GR', kem:true},
+  {ticker:'ALWN (KEM)',name:'Allwyn Entertainment AG (KEM)',     cat:'Stock',shares:145,  avgCost:17.7728, price:9.828,   currency:'EUR', invested:2577,   value:1425,   pl:-1152,  roi:-44.7, divAnn:174,  divYoC:6.75, market:'GR', kem:true},
   // ΑΒΑΞ direct Piraeus (700sh)
-  {ticker:'ΑΒΑΞ',    name:'ΑΒΑΞ Κατασκευαστική (Piraeus)', cat:'Stock', shares:700,   avgCost:3.47,    price:3.57,    currency:'EUR', invested:2429,   value:2499,   pl:70,     roi:2.9,   divAnn:45,   divYoC:1.85, market:'GR'},
+  {ticker:'ΑΒΑΞ',    name:'ΑΒΑΞ Κατασκευαστική',           cat:'Stock', shares:700,   avgCost:3.376,   price:3.415,   currency:'EUR', invested:2363,   value:2391,   pl:27,     roi:1.14,  divAnn:45,   divYoC:1.90, market:'GR'},
   // ALWN direct Piraeus (404sh = 400+4 αγορά 11/11/2026 @€9.98), avgCost weighted 15.3719
-  {ticker:'ALWN',    name:'Allwyn Entertainment AG (πρ. ΟΠΑΠ)', cat:'Stock', shares:404, avgCost:15.3719, price:12.085,  currency:'EUR', invested:6210,   value:4882,   pl:-1328,  roi:-21.4, divAnn:484,  divYoC:7.79, market:'GR'},
+  {ticker:'ALWN',    name:'Allwyn Entertainment AG',            cat:'Stock', shares:404, avgCost:15.3748, price:9.814,   currency:'EUR', invested:6211,   value:3965,   pl:-2247,  roi:-36.2, divAnn:484,  divYoC:7.79, market:'GR'},
 ];
 
-const manualTickers = ['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΔΕΗΕ','ΓΕΚ Bond','AKTOR Bond','ΕΛΠΕ','ΑΒΑΞ','ALWN','ΜΥΤΙΛ','ΜΟΤΡ','BYD','VWCE','O.TR','VUAA.TR','BOND.TR'];
+const manualTickers = ['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΑΒΑΞ','ALWN','ΜΤΛΝ','CMFC','ΓΕΚ Bond','AKTOR Bond','BYD','VWCE','O.TR','VUAA.TR','AGGG'];
 const cryptoTickers = ['ETH','WBETH','ADA','SOL','MANA','BEAMX','JASMY','COTI'];
 const usTickers     = ['NVDA','MSFT','BABA','META','AMZN','SOFI','INTC','O','C','SCHD','FCX','TDOC'];
 
@@ -1180,6 +1180,7 @@ function init() {
   const ruEl = document.getElementById('eurUsdRate');
   if(ruEl) { ruEl.value = eurUsd; ruEl.addEventListener('change', () => { eurUsd = parseFloat(ruEl.value)||1.11; recalc(); }); }
   buildPricesTab();
+  loadSavedPrices();
   recalc();
   buildTop10();
   buildHoldings();
@@ -1204,11 +1205,11 @@ function setLastUpdated() {
 // PRICES TAB
 // ============================================================
 const priceGroups = {
-  'gr':     { label:'ΧΑ',  ccy:'EUR', tickers:['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΔΕΗΕ','ΕΛΠΕ','ΑΒΑΞ','ALWN','ΜΥΤΙΛ','ΜΟΤΡ'] },
+  'gr':     { label:'ΧΑ',  ccy:'EUR', tickers:['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΑΒΑΞ','ALWN','ΜΤΛΝ','CMFC'] },
   'us':     { label:'USA', ccy:'USD', tickers:['NVDA','MSFT','BABA','META','AMZN','SOFI','INTC','C','SCHD','FCX','TDOC'] },
-  'etf':    { label:'ETF', ccy:'EUR', tickers:['VUAA','VWCE','VUAA.TR','O.TR','BOND.TR','BYD'] },
+  'etf':    { label:'ETF', ccy:'EUR', tickers:['VUAA','VWCE','VUAA.TR','O.TR','AGGG','BYD'] },
   'bond':   { label:'Bond',ccy:'EUR', tickers:['ΓΕΚ Bond','AKTOR Bond'] },
-  'crypto': { label:'Crypto',ccy:'USD',tickers:['ETH','WBETH','ADA','SOL','MANA','BEAMX','JASMY','COTI','ETH (BP)','ADA (BP)','NEO','ETH (CDC)','ADA (CDC)','SYN','POL','NEO (CDC)','FLOKI'] }
+  'crypto': { label:'Crypto',ccy:'EUR',tickers:['ETH','WBETH','ADA','SOL','MANA','BEAMX','JASMY','COTI','ETH (BP)','ADA (BP)','NEO','SHIB','ETH (CDC)','ADA (CDC)','SYN','POL','NEO (CDC)','FLOKI','GAS','STRAX','XRP (BP)'] }
 };
 
 function buildPricesTab() {
@@ -1280,6 +1281,14 @@ function applyAllPrices() {
   if(savedEl) savedEl.textContent = '✅ Αποθηκεύτηκε: '+dateStr+' | EUR/USD: '+eurUsd.toFixed(3);
   document.getElementById('lastUpdated').textContent = 'Ενημέρωση: '+dateStr+' (χειροκίνητη)';
   showNotification('✅ Τιμές ενημερώθηκαν! '+dateStr);
+  // ── SAVE TO localStorage ──
+  try {
+    const priceMap = {};
+    holdings.forEach(h => { priceMap[h.ticker] = h.price; });
+    localStorage.setItem('vw_prices', JSON.stringify(priceMap));
+    localStorage.setItem('vw_eurUsd', eurUsd.toString());
+    localStorage.setItem('vw_priceDate', dateStr);
+  } catch(e) {}
   // rebuild price pl badges
   buildPricesTab();
   // re-populate inputs (since buildPricesTab recreates them)
@@ -1288,6 +1297,36 @@ function applyAllPrices() {
     const inp = document.getElementById(safeId);
     if(inp) inp.value = h.price;
   });
+}
+
+function clearSavedPrices() {
+  try { localStorage.removeItem('vw_prices'); localStorage.removeItem('vw_eurUsd'); localStorage.removeItem('vw_priceDate'); } catch(e) {}
+  showNotification('🔄 Τιμές reset — χρήση default τιμών κώδικα');
+}
+
+function loadSavedPrices() {
+  // ── LOAD FROM localStorage ──
+  try {
+    const saved = localStorage.getItem('vw_prices');
+    if(saved) {
+      const priceMap = JSON.parse(saved);
+      holdings.forEach(h => { if(priceMap[h.ticker] !== undefined) h.price = priceMap[h.ticker]; });
+    }
+    const savedRate = localStorage.getItem('vw_eurUsd');
+    if(savedRate) {
+      eurUsd = parseFloat(savedRate)||1.11;
+      const ruEl = document.getElementById('eurUsdRate');
+      if(ruEl) ruEl.value = eurUsd.toFixed(3);
+    }
+    const savedDate = localStorage.getItem('vw_priceDate');
+    if(savedDate) {
+      const pdEl = document.getElementById('priceDate');
+      if(pdEl) pdEl.value = savedDate;
+      const savedEl = document.getElementById('pricesLastSaved');
+      if(savedEl) savedEl.textContent = '📅 Τελευταία ενημέρωση: '+savedDate+' | EUR/USD: '+eurUsd.toFixed(3);
+      document.getElementById('lastUpdated').textContent = 'Ενημέρωση: '+savedDate+' (αποθηκευμένη)';
+    }
+  } catch(e) {}
 }
 
 function applyManualPrice(ticker, val) {
