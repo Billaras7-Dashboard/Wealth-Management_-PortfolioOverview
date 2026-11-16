@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Viking Wealth — Portfolio Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg-primary: #0a0e1a;
@@ -56,37 +57,48 @@
   .tab-content.active { display:block; }
 
   /* KPI CARDS */
-  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:20px; }
-  .kpi-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; position:relative; overflow:hidden; }
-  .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent); }
-  .kpi-card.green::before { background:var(--green); }
-  .kpi-card.red::before { background:var(--red); }
-  .kpi-card.gold::before { background:var(--gold); }
-  .kpi-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
-  .kpi-value { font-size:22px; font-weight:700; color:var(--text-primary); }
-  .kpi-sub { font-size:12px; color:var(--text-secondary); margin-top:4px; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:10px; margin-bottom:20px; }
+  .kpi-card {
+    background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px 16px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:space-between;
+    min-height:110px;
+  }
+  .kpi-card::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background:var(--accent); border-radius:0 0 10px 10px;
+  }
+  .kpi-card.green::after { background:var(--green); }
+  .kpi-card.red::after { background:var(--red); }
+  .kpi-card.gold::after { background:var(--gold); }
+  .kpi-card.green { background:linear-gradient(135deg,rgba(16,185,129,0.07) 0%,var(--bg-card) 60%); }
+  .kpi-card.red { background:linear-gradient(135deg,rgba(239,68,68,0.07) 0%,var(--bg-card) 60%); }
+  .kpi-card.gold { background:linear-gradient(135deg,rgba(251,191,36,0.07) 0%,var(--bg-card) 60%); }
+  .kpi-label { font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:700; }
+  .kpi-value { font-size:26px; font-weight:900; color:var(--text-primary); letter-spacing:-1px; line-height:1; }
+  .kpi-sub { font-size:12px; color:var(--text-secondary); margin-top:6px; }
   .kpi-sub.up { color:var(--green); }
   .kpi-sub.down { color:var(--red); }
 
   /* PERF BADGES */
   .perf-section { margin-bottom:20px; }
-  .perf-group { margin-bottom:12px; }
-  .perf-group-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; padding-left:2px; }
+  .perf-group { margin-bottom:14px; }
+  .perf-group-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; padding-left:2px; display:flex; align-items:center; gap:6px; }
   .perf-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .perf-grid.two { grid-template-columns:repeat(2,1fr); }
   .perf-badge {
-    background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px 10px;
-    text-align:center; position:relative; overflow:hidden; transition:border-color .2s;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:14px 10px;
+    text-align:center; position:relative; overflow:hidden; transition:border-color .2s, transform .15s;
   }
-  .perf-badge:hover { border-color:var(--accent); }
-  .perf-badge::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--border); }
+  .perf-badge:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .perf-badge::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--border); }
   .perf-badge.up::before { background:var(--green); }
   .perf-badge.down::before { background:var(--red); }
-  .perf-badge .period { font-size:9px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.8px; font-weight:600; }
-  .perf-badge .val { font-size:17px; font-weight:700; line-height:1; }
+  .perf-badge .period { font-size:9px; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
+  .perf-badge .val { font-size:20px; font-weight:800; line-height:1; letter-spacing:-0.5px; }
   .perf-badge .val.up { color:var(--green); }
   .perf-badge .val.down { color:var(--red); }
-  .perf-badge .val-sub { font-size:9px; color:var(--text-muted); margin-top:3px; }
+  .perf-badge .val-sub { font-size:10px; color:var(--text-muted); margin-top:4px; }
 
   /* GRIDS */
   .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -100,9 +112,9 @@
 
   /* TABLE */
   .tbl-wrap { overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { padding:9px 10px; text-align:left; color:var(--text-muted); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); background:var(--bg-secondary); position:sticky; top:0; }
-  td { padding:9px 10px; border-bottom:1px solid rgba(42,58,85,0.4); vertical-align:middle; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { padding:10px 12px; text-align:left; color:var(--text-muted); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); background:var(--bg-secondary); position:sticky; top:0; }
+  td { padding:10px 12px; border-bottom:1px solid rgba(42,58,85,0.4); vertical-align:middle; }
   tr:hover td { background:rgba(59,130,246,0.05); }
   .tag { display:inline-block; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:600; }
   .tag-stock { background:rgba(59,130,246,0.15); color:#60a5fa; }
@@ -143,7 +155,7 @@
   .ticker.crypto { color:#fcd34d; }
 
   /* SECTION TITLE */
-  .section-title { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+  .section-title { font-size:18px; font-weight:700; color:var(--text-primary); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
 
   /* FIRE PROGRESS */
   .fire-bar { background:var(--bg-secondary); border-radius:10px; height:20px; overflow:hidden; margin:10px 0; }
@@ -180,6 +192,59 @@
 
   /* NOTIFICATION */
   #notification { position:fixed; bottom:20px; right:20px; background:var(--green); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; font-weight:600; display:none; z-index:999; box-shadow:0 4px 20px rgba(0,0,0,0.4); }
+
+  /* MODAL */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:500; display:none; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:28px; width:480px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.6); }
+  .modal-box h3 { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+  .form-row { margin-bottom:14px; }
+  .form-row label { display:block; font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
+  .form-row input, .form-row select, .form-row textarea { width:100%; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); padding:8px 12px; border-radius:7px; font-size:13px; }
+  .form-row input:focus, .form-row select:focus { outline:none; border-color:var(--accent); }
+  .form-row textarea { resize:vertical; min-height:60px; font-family:inherit; }
+  .form-two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .btn-primary { background:var(--accent); color:#fff; border:none; padding:10px 22px; border-radius:7px; cursor:pointer; font-size:13px; font-weight:600; }
+  .btn-primary:hover { background:#2563eb; }
+  .btn-cancel { background:var(--bg-secondary); color:var(--text-secondary); border:1px solid var(--border); padding:10px 22px; border-radius:7px; cursor:pointer; font-size:13px; }
+  .btn-cancel:hover { border-color:var(--text-muted); }
+
+  /* GOALS TAB */
+  .goal-card {
+    background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+    padding:22px 24px; margin-bottom:18px; position:relative; overflow:hidden;
+    border-left:4px solid var(--accent);
+    transition:box-shadow .2s, border-color .2s;
+  }
+  .goal-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.25); }
+  .goal-card.type-debt {
+    border-left-color:rgba(239,68,68,0.7);
+    background:linear-gradient(135deg,rgba(239,68,68,0.04) 0%,var(--bg-card) 40%);
+  }
+  .goal-card.type-saving {
+    border-left-color:rgba(16,185,129,0.7);
+    background:linear-gradient(135deg,rgba(16,185,129,0.04) 0%,var(--bg-card) 40%);
+  }
+  .goal-card .goal-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+  .goal-card .goal-title { font-size:20px; font-weight:800; color:var(--text-primary); letter-spacing:-0.3px; }
+  .goal-card .goal-icon { font-size:28px; margin-right:10px; }
+  .goal-card .goal-desc { font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.5; }
+  .goal-card .goal-badge { font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; white-space:nowrap; }
+  .goal-card .goal-nums { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  .goal-card .goal-num-box { background:var(--bg-secondary); border-radius:10px; padding:12px 10px; text-align:center; border:1px solid var(--border); }
+  .goal-card .goal-num-box .gnb-label { font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:5px; font-weight:700; }
+  .goal-card .goal-num-box .gnb-val { font-size:18px; font-weight:800; letter-spacing:-0.3px; }
+  .goal-bars { display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+  .goal-bar-row { display:grid; grid-template-columns:130px 1fr 60px; align-items:center; gap:10px; }
+  .goal-bar-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; font-weight:600; text-align:right; }
+  .goal-bar-track { background:var(--bg-secondary); border-radius:6px; height:10px; overflow:hidden; border:1px solid var(--border); }
+  .goal-bar-fill { height:100%; border-radius:6px; transition:width 0.6s ease; }
+  .goal-bar-pct { font-size:12px; font-weight:700; text-align:left; }
+  .goal-card .goal-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .goal-pay-btn { background:rgba(16,185,129,0.15); color:var(--green); border:1px solid rgba(16,185,129,0.3); padding:8px 16px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:700; }
+  .goal-pay-btn:hover { background:rgba(16,185,129,0.28); }
+  .goal-edit-btn { background:var(--bg-secondary); color:var(--text-secondary); border:1px solid var(--border); padding:8px 14px; border-radius:7px; cursor:pointer; font-size:12px; }
+  .goal-del-btn { background:rgba(239,68,68,0.1); color:var(--red); border:1px solid rgba(239,68,68,0.2); padding:8px 12px; border-radius:7px; cursor:pointer; font-size:12px; }
 
   /* PRICES GRID */
   .prices-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; }
@@ -219,6 +284,7 @@
   <div class="header-right">
     <span class="last-updated" id="lastUpdated">Τελευταία ενημέρωση: —</span>
     <button class="btn-sm" onclick="showTab('prices')">💹 Τιμές</button>
+    <button class="btn-sm" onclick="backupAll()" title="Εξαγωγή backup σε JSON + HTML + Excel">💾 Backup</button>
     <button class="btn-update" onclick="applyAllPrices()">✅ Εφαρμογή τιμών</button>
   </div>
 </div>
@@ -234,6 +300,7 @@
   <button class="tab-btn" onclick="showTab('allocation')">🎯 Allocation</button>
   <button class="tab-btn" onclick="showTab('business')">🏪 Επενδύσεις Μαγαζιά</button>
   <button class="tab-btn" onclick="showTab('realestate')">🏠 Ακίνητα</button>
+  <button class="tab-btn" onclick="showTab('goals')">🎯 Goals</button>
   <button class="tab-btn" onclick="showTab('strategy')">🏔️ Strategy & FIRE</button>
 </div>
 
@@ -244,39 +311,44 @@
 
   <div class="kpi-grid">
     <div class="kpi-card green">
-      <div class="kpi-label">Συνολική Αξία</div>
-      <div class="kpi-value" id="kpi-total">€142.180</div>
+      <div class="kpi-label">📈 Συνολική Αξία</div>
+      <div class="kpi-value" id="kpi-total">—</div>
       <div class="kpi-sub up" id="kpi-pl">Loading...</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Επενδεδυμένο</div>
-      <div class="kpi-value" id="kpi-invested">Loading...</div>
+      <div class="kpi-label">💶 Επενδεδυμένο</div>
+      <div class="kpi-value" id="kpi-invested">—</div>
       <div class="kpi-sub">Κόστος κτήσης</div>
     </div>
     <div class="kpi-card gold">
-      <div class="kpi-label">Μη Πραγματοπ. Κέρδος</div>
-      <div class="kpi-value" id="kpi-unrealized">Loading...</div>
+      <div class="kpi-label">🚀 Αναλ. Κέρδος</div>
+      <div class="kpi-value" id="kpi-unrealized">—</div>
       <div class="kpi-sub up">ROI on cost</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Cash & Savings</div>
+      <div class="kpi-label">🏦 Cash & Savings</div>
       <div class="kpi-value">€42.924</div>
       <div class="kpi-sub">5 λογαριασμοί</div>
     </div>
     <div class="kpi-card green">
-      <div class="kpi-label">Net Worth (Portfolio)</div>
+      <div class="kpi-label">🌐 Net Worth</div>
       <div class="kpi-value">€177.967</div>
-      <div class="kpi-sub">Χαρτοφυλάκιο + Cash</div>
+      <div class="kpi-sub">Portfolio + Cash</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Ετήσια Μερίσματα</div>
+      <div class="kpi-label">💰 Ετήσια Μερίσματα</div>
       <div class="kpi-value" id="kpi-divs">~€2.100</div>
-      <div class="kpi-sub">Yield: ~1.34%</div>
+      <div class="kpi-sub">Yield ~1.34%</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Holdings</div>
+      <div class="kpi-label">📊 Holdings</div>
       <div class="kpi-value" id="kpi-count">—</div>
-      <div class="kpi-sub">All brokers combined</div>
+      <div class="kpi-sub">All brokers</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">🎯 Goals Progress</div>
+      <div class="kpi-value" id="kpi-goals-pct">—</div>
+      <div class="kpi-sub" id="kpi-goals-sub">Συνολική πρόοδος</div>
     </div>
   </div>
 
@@ -415,21 +487,134 @@
   <div class="card">
     <div class="card-title">
       Ιστορικό Συναλλαγών
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input id="txSearch" type="text" placeholder="🔍 Αναζήτηση..." onkeyup="filterTx()" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:5px 10px;border-radius:5px;font-size:11px;width:150px;">
-        <select id="txType" onchange="filterTx()" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:5px;font-size:11px;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input id="txSearch" type="text" placeholder="🔍 Αναζήτηση..." onkeyup="filterTx()" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:6px 10px;border-radius:5px;font-size:12px;width:160px;">
+        <select id="txType" onchange="filterTx()" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:5px;font-size:12px;">
           <option value="">Όλες</option>
           <option value="BUY">BUY</option>
           <option value="SELL">SELL</option>
           <option value="DIV">DIVIDEND</option>
         </select>
+        <button class="btn-primary" onclick="openTxModal()" style="padding:6px 14px;font-size:12px;">➕ Νέα Συναλλαγή</button>
       </div>
     </div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Ημερ.</th><th>Ticker</th><th>Τύπος</th><th>Μετοχές</th><th>Τιμή</th><th>Σύνολο</th><th>Σημείωση</th></tr></thead>
+        <thead><tr><th>Ημερ.</th><th>Ticker</th><th>Πλατφόρμα</th><th>Τύπος</th><th>Ποσότητα</th><th>Τιμή</th><th>Σύνολο</th><th>Σημείωση</th><th></th></tr></thead>
         <tbody id="txBody"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSACTION MODAL -->
+<div class="modal-overlay" id="txModal">
+  <div class="modal-box">
+    <h3>➕ Νέα Συναλλαγή</h3>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Τύπος</label>
+        <select id="txm-type">
+          <option value="BUY">BUY — Αγορά</option>
+          <option value="SELL">SELL — Πώληση</option>
+          <option value="DIV">DIVIDEND — Μέρισμα</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Ημερομηνία</label>
+        <input type="date" id="txm-date">
+      </div>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Ticker / Asset</label>
+        <input type="text" id="txm-ticker" placeholder="π.χ. ΔΕΗ, NVDA, ETH">
+      </div>
+      <div class="form-row">
+        <label>Πλατφόρμα</label>
+        <select id="txm-platform">
+          <option value="Πειραιώς">Πειραιώς Securities</option>
+          <option value="Freedom24">Freedom24</option>
+          <option value="Trade Republic">Trade Republic</option>
+          <option value="NBG KEM">NBG KEM (Sofi)</option>
+          <option value="Binance">Binance</option>
+          <option value="Bitpanda">Bitpanda</option>
+          <option value="Crypto.com">Crypto.com</option>
+          <option value="Άλλο">Άλλο</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Ποσότητα</label>
+        <input type="number" id="txm-qty" placeholder="0" step="any">
+      </div>
+      <div class="form-row">
+        <label>Τιμή (€)</label>
+        <input type="number" id="txm-price" placeholder="0.00" step="any">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Σημείωση (προαιρετική)</label>
+      <input type="text" id="txm-note" placeholder="π.χ. Αγορά DCA Νοέμβριος">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-cancel" onclick="closeTxModal()">Ακύρωση</button>
+      <button class="btn-primary" onclick="saveTx()">💾 Αποθήκευση</button>
+    </div>
+  </div>
+</div>
+
+<!-- DIVIDEND MODAL -->
+<div class="modal-overlay" id="divModal">
+  <div class="modal-box">
+    <h3>💰 Καταχώριση Μερίσματος</h3>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Ticker / Asset</label>
+        <input type="text" id="divm-ticker" placeholder="π.χ. ΔΕΗ, NVDA">
+      </div>
+      <div class="form-row">
+        <label>Πλατφόρμα</label>
+        <select id="divm-platform">
+          <option value="Πειραιώς">Πειραιώς Securities</option>
+          <option value="Freedom24">Freedom24</option>
+          <option value="Trade Republic">Trade Republic</option>
+          <option value="NBG KEM">NBG KEM (Sofi)</option>
+          <option value="Binance">Binance</option>
+          <option value="Bitpanda">Bitpanda</option>
+          <option value="Crypto.com">Crypto.com</option>
+          <option value="Άλλο">Άλλο</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Ποσότητα μετοχών</label>
+        <input type="number" id="divm-qty" placeholder="0" step="any">
+      </div>
+      <div class="form-row">
+        <label>Μέρισμα ανά μετοχή (€)</label>
+        <input type="number" id="divm-pershare" placeholder="0.00" step="any" oninput="calcDivTotal()">
+      </div>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Σύνολο εισπραχθέν (€)</label>
+        <input type="number" id="divm-total" placeholder="υπολογίζεται αυτόματα" step="any">
+      </div>
+      <div class="form-row">
+        <label>Ημερομηνία</label>
+        <input type="date" id="divm-date">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Σημείωση</label>
+      <input type="text" id="divm-note" placeholder="π.χ. Ετήσιο μέρισμα 2026">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-cancel" onclick="closeDivModal()">Ακύρωση</button>
+      <button class="btn-primary" onclick="saveDiv()">💾 Αποθήκευση</button>
     </div>
   </div>
 </div>
@@ -459,7 +644,9 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Μερίσματα ανά Holding</div>
+    <div class="card-title">Μερίσματα ανά Holding
+      <button class="btn-primary" onclick="openDivModal()" style="padding:6px 14px;font-size:12px;">➕ Καταχώριση Μερίσματος</button>
+    </div>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>Ticker</th><th>Εταιρεία</th><th>Ετήσιο Μέρισμα (€)</th><th>Yield on Cost</th><th>Yield on Value</th><th>Τελευταία Πληρωμή</th><th>Σχόλιο</th></tr></thead>
@@ -562,43 +749,32 @@
   <div class="kpi-grid">
     <div class="kpi-card green">
       <div class="kpi-label">Σύνολο Cash</div>
-      <div class="kpi-value">€43.000</div>
-      <div class="kpi-sub">5 λογαριασμοί</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Emergency Fund</div>
-      <div class="kpi-value">€10.000</div>
-      <div class="kpi-sub">ΜΠΟΥΦ / ΠΕΤΣ</div>
+      <div class="kpi-value" id="sav-total">—</div>
+      <div class="kpi-sub" id="sav-count">— λογαριασμοί</div>
     </div>
     <div class="kpi-card gold">
       <div class="kpi-label">TR Cash (2,75%)</div>
-      <div class="kpi-value">€2.911</div>
-      <div class="kpi-sub">+€15,27 interest earned</div>
+      <div class="kpi-value" id="sav-tr">—</div>
+      <div class="kpi-sub">Τοκιζόμενος λογαριασμός</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Net Worth (Total)</div>
-      <div class="kpi-value">€185.417</div>
-      <div class="kpi-sub">Portfolio + Cash</div>
+      <div class="kpi-label">Τελ. Ενημέρωση</div>
+      <div class="kpi-value" id="sav-date" style="font-size:14px;">—</div>
+      <div class="kpi-sub">Τελευταία χειροκίνητη αλλαγή</div>
     </div>
   </div>
   <div class="two-col">
     <div class="card">
-      <div class="card-title">Λογαριασμοί Cash</div>
+      <div class="card-title">Λογαριασμοί Cash
+        <button class="btn-primary" onclick="openSavModal()" style="padding:6px 14px;font-size:12px;">➕ Νέος Λογαριασμός</button>
+      </div>
       <table>
-        <thead><tr><th>Λογαριασμός</th><th>Υπόλοιπο</th><th>Σκοπός</th></tr></thead>
-        <tbody>
-          <tr><td><strong>TR Cash</strong></td><td class="up">€2.911</td><td style="color:var(--text-muted);font-size:12px;">Τοκίζεται @ 2,75%</td></tr>
-          <tr><td><strong>Πειραιώς Cash</strong></td><td>€3.383</td><td style="color:var(--text-muted);font-size:12px;">Pending απόφαση</td></tr>
-          <tr><td><strong>Freedom24 Cash</strong></td><td>€81</td><td style="color:var(--text-muted);font-size:12px;">USD + EUR</td></tr>
-          <tr><td><strong>ΜΠΟΥΦ</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Emergency fund</td></tr>
-          <tr><td><strong>ΠΕΤΣ</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Γενικές αποταμιεύσεις</td></tr>
-          <tr><td><strong>Sav Alpha Bank</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Αποθεματικό</td></tr>
-          <tr><td><strong>Sav NBG</strong></td><td>€10.000</td><td style="color:var(--text-muted);font-size:12px;">Κοινός / Λειτουργικά</td></tr>
-          <tr style="border-top:2px solid var(--border);font-weight:700;">
-            <td>ΣΥΝΟΛΟ</td><td class="up">€43.000</td><td></td>
-          </tr>
-        </tbody>
+        <thead><tr><th>Λογαριασμός</th><th>Υπόλοιπο</th><th>Επιτόκιο</th><th>Σκοπός</th><th></th></tr></thead>
+        <tbody id="savBody"></tbody>
       </table>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="btn-primary" onclick="saveSavings()" style="padding:8px 18px;">💾 Αποθήκευση αλλαγών</button>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">Κατανομή Cash</div>
@@ -608,8 +784,24 @@
   <div class="card" style="border-left:3px solid var(--gold);">
     <div class="card-title">📝 Σημείωση — Savings Strategy</div>
     <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
-      <p>⏳ <em>Η αναλυτική στρατηγική για savings θα οριστικοποιηθεί αργότερα (αναβολή από κοινή συμφωνία).</em></p>
       <p>✅ Πλάνο: +€250/μήνα στο TR Savings account για χρηματοδότηση μηνιαίων αγορών ETF.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SAVINGS ACCOUNT MODAL -->
+<div class="modal-overlay" id="savModal">
+  <div class="modal-box">
+    <h3>🏦 Νέος Λογαριασμός</h3>
+    <div class="form-row"><label>Όνομα Λογαριασμού</label><input type="text" id="savm-name" placeholder="π.χ. Alpha Bank Savings"></div>
+    <div class="form-two">
+      <div class="form-row"><label>Υπόλοιπο (€)</label><input type="number" id="savm-bal" placeholder="0.00" step="any"></div>
+      <div class="form-row"><label>Επιτόκιο (%)</label><input type="number" id="savm-rate" placeholder="0.00" step="any"></div>
+    </div>
+    <div class="form-row"><label>Σκοπός</label><input type="text" id="savm-purpose" placeholder="π.χ. Emergency fund"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-cancel" onclick="closeSavModal()">Ακύρωση</button>
+      <button class="btn-primary" onclick="addSavAccount()">➕ Προσθήκη</button>
     </div>
   </div>
 </div>
@@ -701,8 +893,10 @@
 
 <!-- ======================== REAL ESTATE TAB ======================== -->
 <div id="tab-realestate" class="tab-content">
-  <div class="section-title">🏠 Ακίνητα</div>
-  <div class="kpi-grid">
+  <div class="section-title">🏠 Ακίνητα — Χαρτοφυλάκιο</div>
+
+  <!-- Summary KPIs -->
+  <div class="kpi-grid" style="margin-bottom:28px;">
     <div class="kpi-card green">
       <div class="kpi-label">Μηνιαίο Εισόδημα</div>
       <div class="kpi-value">€170</div>
@@ -715,7 +909,7 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Αποσβένεται σε</div>
-      <div class="kpi-value">~32 μήνες</div>
+      <div class="kpi-value">~31 μήνες</div>
       <div class="kpi-sub">≈ Ιούλ 2029</div>
     </div>
     <div class="kpi-card">
@@ -725,169 +919,354 @@
     </div>
   </div>
 
-  <!-- Αχαρνών Progress Card -->
-  <div class="card" style="border-left:3px solid var(--green);">
-    <div class="card-title">🏘️ Ακίνητο Αχαρνών — Απόσβεση Κόστους Κτήσης</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
-      Κοινό με Πάνο &amp; Πατέρα · Μισθωτήριο έως Μαρ 2028 · €830/μήνα σύνολο · Μερίδιο Βασίλη: <strong style="color:var(--text-primary);">€170/μήνα</strong>
-    </div>
-
-    <!-- Progress Bar -->
-    <div style="margin-bottom:20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-size:12px;color:var(--text-muted);">Πρόοδος Απόσβεσης</span>
-        <span style="font-size:13px;font-weight:700;color:var(--green);">18,4% (€1.190 / €6.458)</span>
+  <!-- ═══════════════════════════════════════════
+       PROPERTY 1 — ΑΧΑΡΝΩΝ
+  ═══════════════════════════════════════════ -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 16px rgba(0,0,0,0.25);">
+    <!-- Property Header Banner -->
+    <div style="background:linear-gradient(135deg,rgba(16,185,129,0.18) 0%,rgba(16,185,129,0.04) 100%);border-bottom:1px solid rgba(16,185,129,0.25);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">🏘️ Ακίνητο 1 / 3</div>
+        <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;line-height:1.1;">Ακίνητο Αχαρνών</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Κοινό με Πάνο &amp; Πατέρα · Μισθωτήριο έως Μαρ 2028 · €830/μήνα σύνολο</div>
       </div>
-      <div style="background:var(--bg-secondary);border-radius:8px;height:18px;overflow:hidden;border:1px solid var(--border);">
-        <div style="width:18.4%;height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:8px;transition:width 0.5s;display:flex;align-items:center;padding-left:8px;">
-          <span style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;">€1.190</span>
-        </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Μερίδιο Βασίλη</div>
+        <div style="font-size:32px;font-weight:900;color:var(--green);letter-spacing:-1px;">€170<span style="font-size:14px;font-weight:600;color:var(--text-muted);">/μήνα</span></div>
+        <div style="display:inline-block;background:rgba(16,185,129,0.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(16,185,129,0.3);margin-top:4px;">✅ ΜΙΣΘΩΜΕΝΟ</div>
       </div>
     </div>
 
-    <!-- Numbers Grid -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;">
-      <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΣΥΝΟΛΙΚΟ ΚΟΣΤΟΣ</div>
-        <div style="font-size:18px;font-weight:700;color:var(--text-primary);">€6.458</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Αχαρνών €3.583 + Καρπενήσι €2.875</div>
+    <!-- Content -->
+    <div style="padding:24px;">
+      <!-- Metrics Row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;">
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border);">
+          <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">ΣΥΝΟΛΙΚΟ ΚΟΣΤΟΣ</div>
+          <div style="font-size:22px;font-weight:800;color:var(--text-primary);">€6.458</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Αχαρνών €3.583 + Καρπενήσι €2.875</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,0.25);">
+          <div style="font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">ΕΧΕΙ ΑΠΟΣΒΕΣΤΕΙ</div>
+          <div style="font-size:22px;font-weight:800;color:var(--green);">€1.360</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">8 μήνες × €170 (Απρ–Νοε 2026)</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(248,113,113,0.2);">
+          <div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">ΥΠΟΛΟΙΠΟ</div>
+          <div style="font-size:22px;font-weight:800;color:var(--red);">€5.098</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">~30 μήνες ακόμα → Ιούλ 2029</div>
+        </div>
       </div>
-      <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΕΧΕΙ ΑΠΟΣΒΕΣΤΕΙ</div>
-        <div style="font-size:18px;font-weight:700;color:var(--green);">€1.190</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">7 μήνες × €170 (Απρ–Οκτ 2026)</div>
-      </div>
-      <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΥΠΟΛΟΙΠΟ</div>
-        <div style="font-size:18px;font-weight:700;color:var(--red,#f87171);">€5.268</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">~31 μήνες ακόμα → Ιούλ 2029</div>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
-      📌 Μετά την απόσβεση: €170/μήνα = <strong style="color:var(--gold);">€2.040/έτος καθαρό εισόδημα</strong> · Yield <strong style="color:var(--gold);">31,6%</strong> επί κόστους
-    </div>
 
-    <!-- Pie Chart -->
-    <div style="margin-top:20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
-      <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
-        <canvas id="acharnonPie" width="140" height="140"></canvas>
+      <!-- Απόσβεση Progress Bar -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Πρόοδος Απόσβεσης Κόστους Κτήσης</span>
+          <span style="font-size:14px;font-weight:800;color:var(--green);">21,1%</span>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:8px;height:20px;overflow:hidden;border:1px solid var(--border);">
+          <div style="width:21.1%;height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:8px;display:flex;align-items:center;padding-left:10px;">
+            <span style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;">€1.360</span>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:12px;height:12px;border-radius:3px;background:var(--green);flex-shrink:0;"></div>
-          <span style="font-size:12px;color:var(--text-muted);">Αποσβέστηκε</span>
-          <span style="font-size:13px;font-weight:700;color:var(--green);margin-left:auto;padding-left:16px;">€1.190</span>
+
+      <!-- Pie Chart + legend -->
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+        <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
+          <canvas id="acharnonPie" width="140" height="140"></canvas>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:12px;height:12px;border-radius:3px;background:var(--red,#f87171);flex-shrink:0;"></div>
-          <span style="font-size:12px;color:var(--text-muted);">Υπόλοιπο</span>
-          <span style="font-size:13px;font-weight:700;color:var(--red,#f87171);margin-left:auto;padding-left:16px;">€5.268</span>
+        <div style="display:flex;flex-direction:column;gap:10px;flex:1;min-width:160px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:14px;height:14px;border-radius:4px;background:var(--green);flex-shrink:0;"></div>
+            <span style="font-size:12px;color:var(--text-muted);flex:1;">Αποσβέστηκε</span>
+            <span style="font-size:15px;font-weight:800;color:var(--green);">€1.360</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:14px;height:14px;border-radius:4px;background:var(--red);flex-shrink:0;"></div>
+            <span style="font-size:12px;color:var(--text-muted);flex:1;">Υπόλοιπο</span>
+            <span style="font-size:15px;font-weight:800;color:var(--red);">€5.098</span>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:center;gap:10px;">
+            <div style="width:14px;height:14px;border-radius:4px;background:var(--gold);flex-shrink:0;"></div>
+            <span style="font-size:12px;color:var(--text-muted);flex:1;">Σύνολο κόστους</span>
+            <span style="font-size:15px;font-weight:800;color:var(--gold);">€6.458</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);padding-top:4px;">
+            📌 Μετά απόσβεση: <strong style="color:var(--gold);">€2.040/έτος</strong> καθαρό · Yield <strong style="color:var(--gold);">31,6%</strong>
+          </div>
         </div>
-        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;display:flex;align-items:center;gap:8px;">
-          <div style="width:12px;height:12px;border-radius:3px;background:var(--gold);flex-shrink:0;"></div>
-          <span style="font-size:12px;color:var(--text-muted);">Σύνολο κόστους</span>
-          <span style="font-size:13px;font-weight:700;color:var(--gold);margin-left:auto;padding-left:16px;">€6.458</span>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">18,4% αποσβέστηκε · ~31 μήνες ακόμα</div>
       </div>
     </div>
   </div>
 
-  <!-- Ίλιον Card -->
-  <div class="card" style="border-left:3px solid var(--gold);">
-    <div class="card-title">🏢 Διαμέρισμα Ιλίου — Εκτόρος 85, Α΄ Όροφος</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">
-      Ακίνητο νονού · 85τμ · Διαπραγμάτευση με DoValue σε εξέλιξη · Στόχος: εξαγορά &amp; ενοικίαση
+  <!-- ═══════════════════════════════════════════
+       PROPERTY 2 — ΙΛΙΟΝ
+  ═══════════════════════════════════════════ -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 16px rgba(0,0,0,0.25);">
+    <!-- Property Header Banner -->
+    <div style="background:linear-gradient(135deg,rgba(251,191,36,0.16) 0%,rgba(251,191,36,0.03) 100%);border-bottom:1px solid rgba(251,191,36,0.25);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">🏢 Ακίνητο 2 / 3</div>
+        <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;line-height:1.1;">Διαμέρισμα Ιλίου</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Εκτόρος 85, Α΄ Όροφος · 85τμ · Ακίνητο νονού</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Αποθεματικό</div>
+        <div style="font-size:32px;font-weight:900;color:var(--gold);letter-spacing:-1px;">€2.360<span style="font-size:12px;font-weight:600;color:var(--text-muted);"> net</span></div>
+        <div style="display:inline-block;background:rgba(248,113,113,0.12);color:#f87171;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(248,113,113,0.25);margin-top:4px;">🔴 ΣΕ ΕΞΕΛΙΞΗ</div>
+      </div>
     </div>
 
-    <!-- Phase Tracker -->
-    <div style="margin-bottom:20px;">
-      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Φάσεις Επένδυσης</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
+    <!-- Content -->
+    <div style="padding:24px;">
+      <!-- Phases -->
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Φάσεις Επένδυσης</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px;">
+
         <!-- Phase 1 -->
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);">
-          <div style="font-size:18px;line-height:1;padding-top:1px;">🔴</div>
-          <div style="flex:1;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-              <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Φάση 1 — Διαπραγμάτευση DoValue</span>
-              <span style="font-size:11px;font-weight:600;color:#f87171;background:rgba(248,113,113,0.15);padding:2px 8px;border-radius:12px;">ΣΕ ΕΞΕΛΙΞΗ</span>
+        <div style="border-radius:12px;background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);overflow:hidden;">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(248,113,113,0.12);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🔴</span>
+              <span style="font-size:15px;font-weight:800;color:var(--text-primary);">Φάση 1 — Διαπραγμάτευση DoValue</span>
             </div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
-              Χρέος τρέχον: <strong style="color:var(--text-primary);">€77.000</strong> · Αρχικό δάνειο: €28.000 · Προσημείωση: €34.000<br>
-              Στόχος διαπραγμάτευσης: μείωση οφειλής πριν αγορά
-            </div>
+            <span style="font-size:11px;font-weight:700;color:#f87171;background:rgba(248,113,113,0.15);padding:3px 10px;border-radius:20px;border:1px solid rgba(248,113,113,0.2);">ΣΕ ΕΞΕΛΙΞΗ</span>
+          </div>
+          <div style="padding:12px 16px;font-size:12px;color:var(--text-muted);line-height:1.8;">
+            Χρέος τρέχον: <strong style="color:#f87171;font-size:14px;">€77.000</strong> &nbsp;·&nbsp; Αρχικό δάνειο: <strong style="color:var(--text-primary);">€28.000</strong> &nbsp;·&nbsp; Προσημείωση: <strong style="color:var(--text-primary);">€34.000</strong><br>
+            Στόχος: μείωση οφειλής πριν αγορά
           </div>
         </div>
-        <!-- Phase 2 -->
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);opacity:0.75;">
-          <div style="font-size:18px;line-height:1;padding-top:1px;">🟡</div>
-          <div style="flex:1;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-              <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Φάση 2 — Κόστη Μετάβασης</span>
-              <span style="font-size:11px;font-weight:600;color:var(--gold);background:rgba(251,191,36,0.1);padding:2px 8px;border-radius:12px;">ΕΚΚΡΕΜΕΣ</span>
-            </div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
-              Διαγραφή δανείου · Δικηγόρος · Ανακαίνιση · <em>Ύψος TBD μετά τη φάση 1</em>
-            </div>
-          </div>
-        </div>
-        <!-- Phase 3 -->
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.12);opacity:0.6;">
-          <div style="font-size:18px;line-height:1;padding-top:1px;">🟢</div>
-          <div style="flex:1;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-              <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Φάση 3 — Ενοικίαση</span>
-              <span style="font-size:11px;font-weight:600;color:var(--green);background:rgba(74,222,128,0.1);padding:2px 8px;border-radius:12px;">ΜΕΛΛΟΝ</span>
-            </div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
-              Εκτιμώμενο ενοίκιο αγοράς: €600–800/μήνα · Yield TBD βάσει τελικού κόστους
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Fund Building -->
-    <div style="border-top:1px solid var(--border);padding-top:16px;">
-      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">💰 Αποθεματικό Κεφάλαιο (ΕΤΕ Savings)</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΑΠΟΤΑΜΙΕΥΜΕΝΟ</div>
-          <div style="font-size:17px;font-weight:700;color:var(--green);">€3.750</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">€375/μήνα × 10μ</div>
+        <!-- Phase 2 -->
+        <div style="border-radius:12px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.18);overflow:hidden;">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(251,191,36,0.12);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🟡</span>
+              <span style="font-size:15px;font-weight:800;color:var(--text-primary);">Φάση 2 — Κόστη Μετάβασης</span>
+            </div>
+            <span style="font-size:11px;font-weight:700;color:var(--gold);background:rgba(251,191,36,0.1);padding:3px 10px;border-radius:20px;border:1px solid rgba(251,191,36,0.2);">ΕΚΚΡΕΜΕΣ</span>
+          </div>
+          <div style="padding:14px 16px;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΔΙΑΓΡΑΦΗ ΔΑΝΕΙΟΥ (€)</div>
+                <input type="number" class="price-input" id="ilion-p2-loan" placeholder="TBD" style="width:100%;" oninput="updateIlionTotal()">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΔΙΚΗΓΟΡΟΣ (€)</div>
+                <input type="number" class="price-input" id="ilion-p2-lawyer" placeholder="TBD" style="width:100%;" oninput="updateIlionTotal()">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΑΝΑΚΑΙΝΙΣΗ (€)</div>
+                <input type="number" class="price-input" id="ilion-p2-reno" placeholder="TBD" style="width:100%;" oninput="updateIlionTotal()">
+              </div>
+            </div>
+          </div>
         </div>
-        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΕΞΟΔΑ</div>
-          <div style="font-size:17px;font-weight:700;color:var(--red,#f87171);">€1.390</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">ΔΕΗ, νερό, ΔΕΣΦΑ κλπ</div>
+
+        <!-- Phase 3 -->
+        <div style="border-radius:12px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.14);overflow:hidden;">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(74,222,128,0.1);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🟢</span>
+              <span style="font-size:15px;font-weight:800;color:var(--text-primary);">Φάση 3 — Ενοικίαση</span>
+            </div>
+            <span style="font-size:11px;font-weight:700;color:var(--green);background:rgba(74,222,128,0.1);padding:3px 10px;border-radius:20px;border:1px solid rgba(74,222,128,0.2);">ΜΕΛΛΟΝ</span>
+          </div>
+          <div style="padding:14px 16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΕΚΤΙΜ. ΕΝΟΙΚΙΟ/ΜΗΝΑ (€)</div>
+                <input type="number" class="price-input" id="ilion-p3-rent" placeholder="600" style="width:100%;" oninput="updateIlionTotal()">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΕΚΤΙΜ. ΑΠΟΔΟΣΗ</div>
+                <div id="ilion-yield" style="font-size:18px;font-weight:800;color:var(--gold);padding:6px 0;">— %</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">ΔΙΑΘΕΣΙΜΟ</div>
-          <div style="font-size:17px;font-weight:700;color:var(--gold);">€2.360</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">net αποθεματικό</div>
+
+        <!-- Total cost summary -->
+        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">Συνολικό Εκτιμώμενο Κόστος Επένδυσης</div>
+            <div style="font-size:11px;color:var(--text-muted);">Διαγραφή δανείου + Δικηγόρος + Ανακαίνιση</div>
+          </div>
+          <span id="ilion-total-cost" style="font-size:22px;font-weight:900;color:var(--accent2);">TBD</span>
         </div>
       </div>
-      <!-- Fund Progress Bar -->
-      <div style="margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <span style="font-size:12px;color:var(--text-muted);">Πρόοδος Αποθεματικού (στόχος €10.000)</span>
-          <span style="font-size:12px;font-weight:700;color:var(--gold);">23,6%</span>
+
+      <!-- Fund Building -->
+      <div style="border-top:1px solid var(--border);padding-top:20px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">💰 Αποθεματικό Κεφάλαιο (ΕΤΕ Savings)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+          <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,0.2);">
+            <div style="font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">ΑΠΟΤΑΜΙΕΥΜΕΝΟ</div>
+            <div style="font-size:22px;font-weight:800;color:var(--green);">€3.750</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">€375/μήνα × 10μ</div>
+          </div>
+          <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(248,113,113,0.2);">
+            <div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">ΕΞΟΔΑ</div>
+            <div style="font-size:22px;font-weight:800;color:var(--red);">€1.390</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">ΔΕΗ, νερό, ΔΕΣΦΑ κλπ</div>
+          </div>
+          <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(251,191,36,0.2);">
+            <div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">ΔΙΑΘΕΣΙΜΟ</div>
+            <div style="font-size:22px;font-weight:800;color:var(--gold);">€2.360</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">net αποθεματικό</div>
+          </div>
         </div>
-        <div style="background:var(--bg-secondary);border-radius:8px;height:14px;overflow:hidden;border:1px solid var(--border);">
-          <div style="width:23.6%;height:100%;background:linear-gradient(90deg,var(--gold),#fcd34d);border-radius:8px;"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
-          +€375/μήνα · Χρειάζονται ~21 μήνες για €10k στόχο
+        <!-- Fund Progress Bar -->
+        <div style="margin-bottom:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Πρόοδος Αποθεματικού (στόχος €10.000)</span>
+            <span style="font-size:14px;font-weight:800;color:var(--gold);">23,6%</span>
+          </div>
+          <div style="background:var(--bg-secondary);border-radius:8px;height:16px;overflow:hidden;border:1px solid var(--border);">
+            <div style="width:23.6%;height:100%;background:linear-gradient(90deg,var(--gold),#fcd34d);border-radius:8px;display:flex;align-items:center;padding-left:8px;">
+              <span style="font-size:9px;font-weight:700;color:#000;white-space:nowrap;">€2.360</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:7px;">+€375/μήνα · ~21 μήνες για €10k στόχο</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Πετρούπολη Card -->
-  <div class="card" style="border-left:3px solid var(--text-muted);">
-    <div class="card-title">🏠 Κατοικία Πετρούπολης — Κύρια Κατοικία</div>
-    <div style="font-size:12px;color:var(--text-muted);">
-      Ιδιοκατοίκηση · Δεν συμπεριλαμβάνεται στους υπολογισμούς yield &amp; εισοδήματος
+  <!-- ═══════════════════════════════════════════
+       PROPERTY 3 — ΠΕΤΡΟΥΠΟΛΗ
+  ═══════════════════════════════════════════ -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 16px rgba(0,0,0,0.25);">
+    <div style="background:linear-gradient(135deg,rgba(100,116,139,0.14) 0%,rgba(100,116,139,0.03) 100%);border-bottom:1px solid rgba(100,116,139,0.2);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">🏠 Ακίνητο 3 / 3</div>
+        <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;line-height:1.1;">Κατοικία Πετρούπολης</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Κύρια κατοικία · Ιδιοκατοίκηση</div>
+      </div>
+      <div>
+        <div style="display:inline-block;background:rgba(100,116,139,0.12);color:var(--text-muted);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(100,116,139,0.2);margin-top:8px;">🏡 ΙΔΙΟΚΑΤΟΙΚΗΣΗ</div>
+      </div>
+    </div>
+    <div style="padding:18px 24px;font-size:12px;color:var(--text-muted);">
+      Δεν συμπεριλαμβάνεται στους υπολογισμούς yield &amp; εισοδήματος
+    </div>
+  </div>
+</div>
+
+<!-- ======================== GOALS TAB ======================== -->
+<div id="tab-goals" class="tab-content">
+  <div class="section-title">🎯 Goals Tracking — Στόχοι & Αποπληρωμές</div>
+  <div class="kpi-grid" id="goals-kpi-grid">
+    <div class="kpi-card gold">
+      <div class="kpi-label">Ενεργοί Στόχοι</div>
+      <div class="kpi-value" id="goals-count">—</div>
+      <div class="kpi-sub">Σε παρακολούθηση</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Συνολικό Υπόλοιπο</div>
+      <div class="kpi-value" id="goals-remaining">—</div>
+      <div class="kpi-sub">Προς αποπληρωμή</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Μηνιαία Δέσμευση</div>
+      <div class="kpi-value" id="goals-monthly">—</div>
+      <div class="kpi-sub">Σύνολο δόσεων/εισφορών</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Αποταμιεύθηκαν (Goals)</div>
+      <div class="kpi-value" id="goals-saved">—</div>
+      <div class="kpi-sub">Ολοκληρωμένες πληρωμές</div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <button class="btn-primary" onclick="openGoalModal()">➕ Νέος Στόχος / Αποπληρωμή</button>
+  </div>
+
+  <div id="goalsContainer"></div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="modal-overlay" id="goalModal">
+  <div class="modal-box">
+    <h3 id="goalModalTitle">➕ Νέος Στόχος</h3>
+    <input type="hidden" id="gm-id">
+    <div class="form-row">
+      <label>Τίτλος</label>
+      <input type="text" id="gm-title" placeholder="π.χ. Ταξίδι Lapland, Αποπληρωμή Πιστωτικής">
+    </div>
+    <div class="form-row">
+      <label>Αιτιολογία / Περιγραφή</label>
+      <textarea id="gm-desc" placeholder="Περιγράψτε τον στόχο..."></textarea>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Τύπος</label>
+        <select id="gm-type">
+          <option value="debt">💳 Αποπληρωμή χρέους/ταξιδιού</option>
+          <option value="saving">💰 Αποταμίευση / Στόχος</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Χρώμα (emoji icon)</label>
+        <select id="gm-icon">
+          <option value="✈️">✈️ Ταξίδι</option>
+          <option value="💳">💳 Πιστωτική / Χρέος</option>
+          <option value="🚭">🚭 Κάπνισμα</option>
+          <option value="🏠">🏠 Ακίνητο</option>
+          <option value="🎯">🎯 Γενικός Στόχος</option>
+          <option value="🚗">🚗 Αυτοκίνητο</option>
+          <option value="📚">📚 Εκπαίδευση</option>
+          <option value="💪">💪 Προσωπικός</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Συνολικό ποσό (€)</label>
+        <input type="number" id="gm-total" placeholder="0.00" step="any" oninput="gmCalcRemaining()">
+      </div>
+      <div class="form-row">
+        <label>Ήδη πληρωμένο / αποταμιευμένο (€)</label>
+        <input type="number" id="gm-paid" placeholder="0.00" step="any" oninput="gmCalcRemaining()">
+      </div>
+    </div>
+    <div class="form-two">
+      <div class="form-row">
+        <label>Μηνιαία δόση / εισφορά (€)</label>
+        <input type="number" id="gm-monthly" placeholder="0.00" step="any">
+      </div>
+      <div class="form-row">
+        <label>Ημερ. έναρξης</label>
+        <input type="date" id="gm-start">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-cancel" onclick="closeGoalModal()">Ακύρωση</button>
+      <button class="btn-primary" onclick="saveGoal()">💾 Αποθήκευση</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOAL PAYMENT MODAL -->
+<div class="modal-overlay" id="goalPayModal">
+  <div class="modal-box" style="max-width:360px;">
+    <h3>💸 Καταχώριση Πληρωμής</h3>
+    <input type="hidden" id="gpm-id">
+    <div class="form-row">
+      <label>Ποσό πληρωμής (€)</label>
+      <input type="number" id="gpm-amount" placeholder="0.00" step="any">
+    </div>
+    <div class="form-row">
+      <label>Ημερομηνία</label>
+      <input type="date" id="gpm-date">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-cancel" onclick="document.getElementById('goalPayModal').classList.remove('open')">Ακύρωση</button>
+      <button class="btn-primary" onclick="recordGoalPayment()">✅ Καταχώριση</button>
     </div>
   </div>
 </div>
@@ -1310,6 +1689,8 @@ function init() {
   drawDivYearChart();
   drawCashPieChart();
   buildDivTimeline();
+  buildSavings();
+  buildGoals();
   setLastUpdated();
   setTimeout(buildAcharnonPie, 100);
 }
@@ -1567,33 +1948,55 @@ function sortHoldings(key) {
 // TRANSACTIONS
 // ============================================================
 function buildTransactions() {
-  renderTx(transactions);
+  const manual = JSON.parse(localStorage.getItem('vw_tx') || '[]');
+  // normalize manual entries to match renderTx schema
+  const normalizedManual = manual.map(t => ({
+    ...t,
+    shares: t.qty,
+    _manual: true
+  }));
+  const all = [...normalizedManual, ...transactions];
+  renderTx(all);
 }
 
 function renderTx(data) {
-  const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted = [...data].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const tbody = document.getElementById('txBody');
   tbody.innerHTML = '';
   sorted.forEach(tx => {
     const typeColor = tx.type==='BUY'?'var(--green)':tx.type==='SELL'?'var(--red)':'var(--gold)';
     const tr = document.createElement('tr');
+    const delBtn = tx._manual
+      ? `<td><button onclick="deleteTx(${tx.id})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;" title="Διαγραφή">🗑</button></td>`
+      : '<td></td>';
     tr.innerHTML = `
       <td style="font-size:12px;color:var(--text-muted)">${tx.date}</td>
       <td><strong>${tx.ticker}</strong></td>
+      <td style="font-size:12px;color:var(--text-muted)">${tx.platform||'—'}</td>
       <td><span style="color:${typeColor};font-weight:700;font-size:12px;">${tx.type}</span></td>
-      <td>${tx.shares ?? '—'}</td>
+      <td>${tx.shares ?? tx.qty ?? '—'}</td>
       <td>${tx.price ? fmtEur(tx.price,2) : '—'}</td>
       <td class="${tx.type==='SELL'?'down':tx.type==='DIV'?'up neutral':'up'}"><strong>${fmtEur(tx.total)}</strong></td>
-      <td style="font-size:11px;color:var(--text-muted)">${tx.note}</td>`;
+      <td style="font-size:11px;color:var(--text-muted)">${tx.note||''}</td>
+      ${delBtn}`;
     tbody.appendChild(tr);
   });
+}
+
+function deleteTx(id) {
+  if (!confirm('Διαγραφή συναλλαγής;')) return;
+  const list = JSON.parse(localStorage.getItem('vw_tx') || '[]').filter(t=>t.id!==id);
+  localStorage.setItem('vw_tx', JSON.stringify(list));
+  buildTransactions();
 }
 
 function filterTx() {
   const search = document.getElementById('txSearch').value.toLowerCase();
   const type = document.getElementById('txType').value;
-  const filtered = transactions.filter(tx => {
-    const matchSearch = !search || tx.ticker.toLowerCase().includes(search) || tx.note.toLowerCase().includes(search);
+  const manual = JSON.parse(localStorage.getItem('vw_tx') || '[]').map(t=>({...t,shares:t.qty,_manual:true}));
+  const all = [...manual, ...transactions];
+  const filtered = all.filter(tx => {
+    const matchSearch = !search || (tx.ticker||'').toLowerCase().includes(search) || (tx.note||'').toLowerCase().includes(search);
     const matchType = !type || tx.type===type;
     return matchSearch && matchType;
   });
@@ -2026,6 +2429,575 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (btn.dataset.tab === 'realestate') setTimeout(buildAcharnonPie, 50);
   });
+});
+
+// ============================================================
+// TRANSACTION MODAL
+// ============================================================
+function openTxModal() {
+  const d = new Date().toISOString().split('T')[0];
+  document.getElementById('txm-date').value = d;
+  document.getElementById('txm-ticker').value = '';
+  document.getElementById('txm-qty').value = '';
+  document.getElementById('txm-price').value = '';
+  document.getElementById('txm-note').value = '';
+  document.getElementById('txModal').classList.add('open');
+}
+function closeTxModal() { document.getElementById('txModal').classList.remove('open'); }
+function saveTx() {
+  const type = document.getElementById('txm-type').value;
+  const date = document.getElementById('txm-date').value;
+  const ticker = document.getElementById('txm-ticker').value.trim().toUpperCase();
+  const platform = document.getElementById('txm-platform').value;
+  const qty = parseFloat(document.getElementById('txm-qty').value) || 0;
+  const price = parseFloat(document.getElementById('txm-price').value) || 0;
+  const note = document.getElementById('txm-note').value.trim();
+  if (!ticker || !date) { alert('Συμπλήρωσε τουλάχιστον Ticker και Ημερομηνία'); return; }
+  const txList = JSON.parse(localStorage.getItem('vw_tx') || '[]');
+  txList.unshift({ id: Date.now(), type, date, ticker, platform, qty, price, total: qty * price, note });
+  localStorage.setItem('vw_tx', JSON.stringify(txList));
+  closeTxModal();
+  buildTransactions();
+  showNotification('✅ Συναλλαγή αποθηκεύτηκε!');
+}
+
+// ============================================================
+// DIVIDEND MODAL
+// ============================================================
+function openDivModal() {
+  const d = new Date().toISOString().split('T')[0];
+  document.getElementById('divm-date').value = d;
+  document.getElementById('divm-ticker').value = '';
+  document.getElementById('divm-qty').value = '';
+  document.getElementById('divm-pershare').value = '';
+  document.getElementById('divm-total').value = '';
+  document.getElementById('divm-note').value = '';
+  document.getElementById('divModal').classList.add('open');
+}
+function closeDivModal() { document.getElementById('divModal').classList.remove('open'); }
+function calcDivTotal() {
+  const qty = parseFloat(document.getElementById('divm-qty').value) || 0;
+  const ps = parseFloat(document.getElementById('divm-pershare').value) || 0;
+  if (qty && ps) document.getElementById('divm-total').value = (qty * ps).toFixed(2);
+}
+function saveDiv() {
+  const ticker = document.getElementById('divm-ticker').value.trim().toUpperCase();
+  const platform = document.getElementById('divm-platform').value;
+  const qty = parseFloat(document.getElementById('divm-qty').value) || 0;
+  const perShare = parseFloat(document.getElementById('divm-pershare').value) || 0;
+  const total = parseFloat(document.getElementById('divm-total').value) || (qty * perShare);
+  const date = document.getElementById('divm-date').value;
+  const note = document.getElementById('divm-note').value.trim();
+  if (!ticker || !date || !total) { alert('Συμπλήρωσε Ticker, Ημερομηνία και Ποσό'); return; }
+  // also save as a transaction
+  const txList = JSON.parse(localStorage.getItem('vw_tx') || '[]');
+  txList.unshift({ id: Date.now(), type: 'DIV', date, ticker, platform, qty, price: perShare, total, note: note || 'Μέρισμα' });
+  localStorage.setItem('vw_tx', JSON.stringify(txList));
+  closeDivModal();
+  buildTransactions();
+  showNotification('✅ Μέρισμα καταχωρήθηκε!');
+}
+
+// ============================================================
+// SAVINGS (editable, localStorage)
+// ============================================================
+const DEFAULT_SAVINGS = [
+  { id:1, name:'TR Cash', balance:2910.89, rate:2.75, purpose:'Τοκίζεται' },
+  { id:2, name:'Πειραιώς Cash', balance:3383.38, rate:0, purpose:'Pending απόφαση' },
+  { id:3, name:'Freedom24 Cash', balance:80.60, rate:0, purpose:'USD + EUR' },
+  { id:4, name:'ΜΠΟΥΦ', balance:10000, rate:0, purpose:'Emergency fund' },
+  { id:5, name:'ΠΕΤΣ', balance:10000, rate:0, purpose:'Γενικές αποταμιεύσεις' },
+  { id:6, name:'Sav Alpha Bank', balance:10000, rate:0, purpose:'Αποθεματικό' },
+  { id:7, name:'Sav NBG', balance:10000, rate:0, purpose:'Κοινός / Λειτουργικά' },
+];
+function getSavings() {
+  const s = localStorage.getItem('vw_savings');
+  return s ? JSON.parse(s) : DEFAULT_SAVINGS;
+}
+function buildSavings() {
+  const data = getSavings();
+  const tbody = document.getElementById('savBody');
+  if (!tbody) return;
+  tbody.innerHTML = data.map(a => `
+    <tr>
+      <td><strong>${a.name}</strong></td>
+      <td><input type="number" value="${a.balance}" step="any"
+        style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:5px;width:110px;font-size:13px;text-align:right;"
+        onchange="updateSavRow(${a.id},this.value,'balance')"></td>
+      <td><input type="number" value="${a.rate}" step="any"
+        style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:5px;width:70px;font-size:13px;text-align:right;"
+        onchange="updateSavRow(${a.id},this.value,'rate')" placeholder="0"></td>
+      <td style="font-size:12px;color:var(--text-muted);">${a.purpose}</td>
+      <td><button onclick="deleteSavAccount(${a.id})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;" title="Διαγραφή">🗑</button></td>
+    </tr>
+  `).join('') + `<tr style="border-top:2px solid var(--border);font-weight:700;">
+    <td>ΣΥΝΟΛΟ</td>
+    <td class="up" style="font-size:15px;">€${fmt(data.reduce((s,a)=>s+a.balance,0))}</td>
+    <td colspan="3"></td></tr>`;
+  const total = data.reduce((s,a)=>s+a.balance,0);
+  const trAcc = data.find(a=>a.name==='TR Cash');
+  document.getElementById('sav-total').textContent = '€' + fmt(total);
+  document.getElementById('sav-count').textContent = data.length + ' λογαριασμοί';
+  if (trAcc) document.getElementById('sav-tr').textContent = '€' + fmt(trAcc.balance);
+  const dateEl = document.getElementById('sav-date');
+  const sd = localStorage.getItem('vw_sav_date');
+  if (dateEl) dateEl.textContent = sd || '—';
+}
+function updateSavRow(id, val, field) {
+  const data = getSavings();
+  const acc = data.find(a=>a.id===id);
+  if (acc) acc[field] = parseFloat(val) || 0;
+  localStorage.setItem('vw_savings', JSON.stringify(data));
+}
+function saveSavings() {
+  const now = new Date().toLocaleDateString('el-GR');
+  localStorage.setItem('vw_sav_date', now);
+  const dateEl = document.getElementById('sav-date');
+  if (dateEl) dateEl.textContent = now;
+  buildSavings();
+  drawCashPieChart();
+  showNotification('✅ Savings αποθηκεύτηκαν!');
+}
+function openSavModal() { document.getElementById('savModal').classList.add('open'); }
+function closeSavModal() { document.getElementById('savModal').classList.remove('open'); }
+function addSavAccount() {
+  const name = document.getElementById('savm-name').value.trim();
+  const bal = parseFloat(document.getElementById('savm-bal').value) || 0;
+  const rate = parseFloat(document.getElementById('savm-rate').value) || 0;
+  const purpose = document.getElementById('savm-purpose').value.trim();
+  if (!name) { alert('Συμπλήρωσε Όνομα'); return; }
+  const data = getSavings();
+  data.push({ id: Date.now(), name, balance: bal, rate, purpose });
+  localStorage.setItem('vw_savings', JSON.stringify(data));
+  closeSavModal();
+  buildSavings();
+  showNotification('✅ Λογαριασμός προστέθηκε!');
+}
+function deleteSavAccount(id) {
+  if (!confirm('Διαγραφή λογαριασμού;')) return;
+  const data = getSavings().filter(a=>a.id!==id);
+  localStorage.setItem('vw_savings', JSON.stringify(data));
+  buildSavings();
+}
+
+// ============================================================
+// GOALS
+// ============================================================
+const DEFAULT_GOALS = [
+  {
+    id:1, icon:'✈️', title:'Ταξίδι Lapland', type:'debt',
+    desc:'18 δόσεις των €275,55 — συνολικό κόστος ταξιδιού Lapland 2026-2027',
+    total:4960, paid:2755.50, monthly:275.55, start:'2026-01-01'
+  },
+  {
+    id:2, icon:'✈️', title:'Ταξίδι Egypt', type:'debt',
+    desc:'16 δόσεις — συνολικό κόστος ταξιδιού Αίγυπτου 2026-2027',
+    total:3501.22, paid:338.75, monthly:218.75, start:'2026-09-01'
+  },
+  {
+    id:3, icon:'🚭', title:'Αποταμίευση Κάπνισμα', type:'saving',
+    desc:'€5/ημέρα αποταμίευση από τη μέρα που έκοψα το κάπνισμα — 20 Ιουλίου 2026',
+    total:0, paid:595, monthly:5, start:'2026-07-20'
+  }
+];
+function getGoals() {
+  const s = localStorage.getItem('vw_goals');
+  if (!s) return DEFAULT_GOALS;
+  const data = JSON.parse(s);
+  // Migration: fix Κάπνισμα goal monthly from 150 → 5
+  let changed = false;
+  data.forEach(g => {
+    if (g.id === 3 && g.monthly === 150) { g.monthly = 5; changed = true; }
+  });
+  if (changed) saveGoals(data);
+  return data;
+}
+function saveGoals(data) { localStorage.setItem('vw_goals', JSON.stringify(data)); }
+function buildGoals() {
+  const data = getGoals();
+  const container = document.getElementById('goalsContainer');
+  if (!container) return;
+  let totalRemaining = 0, totalMonthly = 0, totalSaved = 0;
+  let weightedPct = 0, weightedTotal = 0;
+
+  container.innerHTML = data.map(g => {
+    const remaining = g.type === 'debt' ? Math.max(0, g.total - g.paid) : 0;
+
+    // Bar 1: % Αποπληρωμής (paid off %)
+    const pctPaidOff = g.type === 'debt'
+      ? (g.total > 0 ? Math.min(100, g.paid / g.total * 100) : 0)
+      : (g.total > 0 ? Math.min(100, g.paid / g.total * 100) : (g.paid > 0 ? 100 : 0));
+
+    // Bar 2: % Μηνιαίας εισφοράς (how many months' worth has been paid vs total)
+    const startDate = g.start ? new Date(g.start) : new Date();
+    const now = new Date();
+    const monthsElapsed = Math.max(1, (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth()));
+    const expectedByNow = g.monthly * monthsElapsed;
+    const pctMonthly = expectedByNow > 0 ? Math.min(100, g.paid / expectedByNow * 100) : 0;
+
+    // Bar 3: % Υπολοίπου (how much of the total REMAINS — inverse of paid off)
+    const pctRemaining = g.type === 'debt'
+      ? (g.total > 0 ? Math.min(100, remaining / g.total * 100) : 0)
+      : (g.paid > 0 && g.total > 0 ? Math.max(0, 100 - pctPaidOff) : 100);
+
+    const monthsLeft = g.type === 'debt' && g.monthly > 0
+      ? Math.ceil(remaining / g.monthly) : null;
+    totalRemaining += remaining;
+    totalMonthly += g.monthly;
+    totalSaved += g.paid;
+
+    // Weighted average for dashboard KPI
+    if (g.total > 0) {
+      weightedPct += pctPaidOff * g.total;
+      weightedTotal += g.total;
+    }
+
+    const color = g.type === 'debt' ? 'var(--red)' : 'var(--green)';
+    const pctColor = pctPaidOff >= 75 ? 'var(--green)' : pctPaidOff >= 40 ? 'var(--gold)' : 'var(--red)';
+
+    function barRow(label, pct, fillColor, pctLabel) {
+      return `<div class="goal-bar-row">
+        <div class="goal-bar-label">${label}</div>
+        <div class="goal-bar-track">
+          <div class="goal-bar-fill" style="width:${pct.toFixed(1)}%;background:${fillColor};"></div>
+        </div>
+        <div class="goal-bar-pct" style="color:${fillColor};">${pctLabel || pct.toFixed(1)+'%'}</div>
+      </div>`;
+    }
+
+    return `<div class="goal-card type-${g.type}">
+      <div class="goal-header">
+        <div style="display:flex;align-items:flex-start;gap:4px;">
+          <span class="goal-icon">${g.icon}</span>
+          <div>
+            <div class="goal-title">${g.title}</div>
+            <div class="goal-desc">${g.desc}</div>
+          </div>
+        </div>
+        <span class="goal-badge" style="background:${g.type==='debt'?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};color:${color};">
+          ${g.type==='debt'?'💳 Αποπληρωμή':'💰 Αποταμίευση'}
+        </span>
+      </div>
+      <div class="goal-nums">
+        <div class="goal-num-box">
+          <div class="gnb-label">${g.type==='debt'?'Σύνολο':'Στόχος'}</div>
+          <div class="gnb-val" style="color:var(--text-primary);">${g.total>0?'€'+fmt(g.total):'Open'}</div>
+        </div>
+        <div class="goal-num-box">
+          <div class="gnb-label">${g.type==='debt'?'Πληρωμένο':'Αποταμιευμένο'}</div>
+          <div class="gnb-val" style="color:var(--green);">€${fmt(g.paid)}</div>
+        </div>
+        <div class="goal-num-box">
+          <div class="gnb-label">${g.type==='debt'?'Υπόλοιπο':'Μηνιαία'}</div>
+          <div class="gnb-val" style="color:${color};">${g.type==='debt'?'€'+fmt(remaining):'€'+fmt(g.monthly)}</div>
+        </div>
+        <div class="goal-num-box">
+          <div class="gnb-label">${monthsLeft!=null?'Μήνες ακόμα':'Δόση/μήνα'}</div>
+          <div class="gnb-val" style="color:var(--gold);">${monthsLeft!=null?monthsLeft+'μ':'€'+fmt(g.monthly)}</div>
+        </div>
+      </div>
+      <div class="goal-bars">
+        ${barRow('% Αποπληρωμής', pctPaidOff, 'var(--green)', pctPaidOff.toFixed(1)+'%')}
+        ${barRow('% Μηνιαίας Εισφοράς', pctMonthly, 'var(--accent)', pctMonthly.toFixed(1)+'%')}
+        ${barRow('% Υπολοίπου', pctRemaining, 'var(--red)', pctRemaining.toFixed(1)+'%')}
+      </div>
+      <div class="goal-actions">
+        ${g.type==='saving' ? `
+        <div style="display:flex;align-items:center;gap:6px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:4px 8px 4px 12px;">
+          <span style="font-size:11px;color:var(--text-muted);">Γρήγορη καταχώριση:</span>
+          <button class="goal-pay-btn" style="padding:5px 10px;font-size:11px;" onclick="quickAddGoal(${g.id},${g.monthly||5})">+€${(g.monthly||5).toFixed(0)}/ημέρα</button>
+          <button class="goal-pay-btn" style="padding:5px 10px;font-size:11px;background:rgba(99,102,241,0.15);color:var(--accent);border-color:rgba(99,102,241,0.3);" onclick="openGoalPayModal(${g.id})">📝 Άλλο ποσό</button>
+        </div>
+        ` : `<button class="goal-pay-btn" onclick="openGoalPayModal(${g.id})">💸 Καταχώριση πληρωμής</button>`}
+        <button class="goal-edit-btn" onclick="editGoal(${g.id})">✏️ Επεξεργασία</button>
+        <button class="goal-del-btn" onclick="deleteGoal(${g.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Update dashboard KPI
+  const kpiEl = document.getElementById('kpi-goals-pct');
+  const kpiSub = document.getElementById('kpi-goals-sub');
+  if (kpiEl) {
+    const overallPct = weightedTotal > 0 ? weightedPct / weightedTotal : 0;
+    kpiEl.textContent = overallPct.toFixed(1) + '%';
+    kpiEl.style.color = overallPct >= 75 ? 'var(--green)' : overallPct >= 40 ? 'var(--gold)' : 'var(--red)';
+  }
+  if (kpiSub) kpiSub.textContent = `${data.length} ενεργοί στόχοι`;
+
+  const countEl = document.getElementById('goals-count');
+  const remEl = document.getElementById('goals-remaining');
+  const monEl = document.getElementById('goals-monthly');
+  const savEl = document.getElementById('goals-saved');
+  if (countEl) countEl.textContent = data.length;
+  if (remEl) remEl.textContent = '€' + fmt(totalRemaining);
+  if (monEl) monEl.textContent = '€' + fmt(totalMonthly);
+  if (savEl) savEl.textContent = '€' + fmt(totalSaved);
+}
+function openGoalModal(id) {
+  document.getElementById('gm-id').value = id || '';
+  if (id) {
+    const g = getGoals().find(x=>x.id===id);
+    if (!g) return;
+    document.getElementById('goalModalTitle').textContent = '✏️ Επεξεργασία Στόχου';
+    document.getElementById('gm-title').value = g.title;
+    document.getElementById('gm-desc').value = g.desc;
+    document.getElementById('gm-type').value = g.type;
+    document.getElementById('gm-icon').value = g.icon;
+    document.getElementById('gm-total').value = g.total;
+    document.getElementById('gm-paid').value = g.paid;
+    document.getElementById('gm-monthly').value = g.monthly;
+    document.getElementById('gm-start').value = g.start;
+  } else {
+    document.getElementById('goalModalTitle').textContent = '➕ Νέος Στόχος';
+    document.getElementById('gm-title').value = '';
+    document.getElementById('gm-desc').value = '';
+    document.getElementById('gm-total').value = '';
+    document.getElementById('gm-paid').value = '';
+    document.getElementById('gm-monthly').value = '';
+    document.getElementById('gm-start').value = new Date().toISOString().split('T')[0];
+  }
+  document.getElementById('goalModal').classList.add('open');
+}
+function closeGoalModal() { document.getElementById('goalModal').classList.remove('open'); }
+function editGoal(id) { openGoalModal(id); }
+function gmCalcRemaining() {
+  // just for display — no auto calculation needed
+}
+function saveGoal() {
+  const id = document.getElementById('gm-id').value;
+  const data = getGoals();
+  const obj = {
+    id: id ? parseInt(id) : Date.now(),
+    icon: document.getElementById('gm-icon').value,
+    title: document.getElementById('gm-title').value.trim(),
+    type: document.getElementById('gm-type').value,
+    desc: document.getElementById('gm-desc').value.trim(),
+    total: parseFloat(document.getElementById('gm-total').value) || 0,
+    paid: parseFloat(document.getElementById('gm-paid').value) || 0,
+    monthly: parseFloat(document.getElementById('gm-monthly').value) || 0,
+    start: document.getElementById('gm-start').value,
+  };
+  if (!obj.title) { alert('Συμπλήρωσε Τίτλο'); return; }
+  if (id) {
+    const idx = data.findIndex(x=>x.id===parseInt(id));
+    if (idx>=0) data[idx] = obj; else data.push(obj);
+  } else { data.push(obj); }
+  saveGoals(data);
+  closeGoalModal();
+  buildGoals();
+  showNotification('✅ Στόχος αποθηκεύτηκε!');
+}
+function deleteGoal(id) {
+  if (!confirm('Διαγραφή στόχου;')) return;
+  saveGoals(getGoals().filter(g=>g.id!==id));
+  buildGoals();
+}
+function openGoalPayModal(id) {
+  document.getElementById('gpm-id').value = id;
+  document.getElementById('gpm-amount').value = '';
+  document.getElementById('gpm-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('goalPayModal').classList.add('open');
+}
+function recordGoalPayment() {
+  const id = parseInt(document.getElementById('gpm-id').value);
+  const amount = parseFloat(document.getElementById('gpm-amount').value) || 0;
+  if (!amount) { alert('Συμπλήρωσε ποσό'); return; }
+  const data = getGoals();
+  const g = data.find(x=>x.id===id);
+  if (g) { g.paid = (g.paid || 0) + amount; }
+  saveGoals(data);
+  document.getElementById('goalPayModal').classList.remove('open');
+  buildGoals();
+  showNotification('✅ Πληρωμή καταχωρήθηκε!');
+}
+function quickAddGoal(id, amount) {
+  const data = getGoals();
+  const g = data.find(x=>x.id===id);
+  if (!g) return;
+  g.paid = (g.paid || 0) + amount;
+  saveGoals(data);
+  buildGoals();
+  showNotification(`✅ +€${amount.toFixed(2)} καταχωρήθηκε για "${g.title}"!`);
+}
+
+// ============================================================
+// ILION COST CALCULATOR
+// ============================================================
+function updateIlionTotal() {
+  const loan = parseFloat(document.getElementById('ilion-p2-loan')?.value) || 0;
+  const lawyer = parseFloat(document.getElementById('ilion-p2-lawyer')?.value) || 0;
+  const reno = parseFloat(document.getElementById('ilion-p2-reno')?.value) || 0;
+  const rent = parseFloat(document.getElementById('ilion-p3-rent')?.value) || 0;
+  const phase2 = loan + lawyer + reno;
+  const totalCost = 77000 + phase2; // DoValue debt + transition costs
+  const el = document.getElementById('ilion-total-cost');
+  if (el) el.textContent = phase2 > 0 ? '€' + fmt(totalCost) : 'TBD';
+  const yieldEl = document.getElementById('ilion-yield');
+  if (yieldEl && rent > 0 && phase2 > 0) {
+    const annualYield = (rent * 12 / totalCost * 100).toFixed(1);
+    yieldEl.textContent = annualYield + '%';
+  }
+}
+
+// ============================================================
+// BACKUP
+// ============================================================
+function backupAll() {
+  const now = new Date();
+  const stamp = now.toISOString().slice(0,10).replace(/-/g,'');
+  const timeStr = now.toLocaleDateString('el-GR') + ' ' + now.toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'});
+
+  // ── 1. JSON backup ──────────────────────────────────────────
+  const payload = {
+    backup_date: timeStr,
+    prices: localStorage.getItem('vw_prices'),
+    eurUsd: localStorage.getItem('vw_eurUsd'),
+    priceDate: localStorage.getItem('vw_priceDate'),
+    transactions: localStorage.getItem('vw_tx'),
+    savings: localStorage.getItem('vw_savings'),
+    sav_date: localStorage.getItem('vw_sav_date'),
+    goals: localStorage.getItem('vw_goals'),
+  };
+  const jBlob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const jLink = document.createElement('a');
+  jLink.href = URL.createObjectURL(jBlob);
+  jLink.download = `viking_backup_${stamp}.json`;
+  jLink.click();
+
+  // ── 2. HTML backup ──────────────────────────────────────────
+  setTimeout(() => {
+    const html = '<!DOCTYPE html>\n<!-- Viking Wealth Backup ' + timeStr + ' -->\n' + document.documentElement.outerHTML;
+    const hBlob = new Blob([html], {type:'text/html'});
+    const hLink = document.createElement('a');
+    hLink.href = URL.createObjectURL(hBlob);
+    hLink.download = `viking_backup_${stamp}.html`;
+    hLink.click();
+  }, 400);
+
+  // ── 3. EXCEL backup (1 tab per site tab) ───────────────────
+  setTimeout(() => {
+    if (typeof XLSX === 'undefined') { showNotification('⚠️ SheetJS δεν φορτώθηκε — Excel παραλείφθηκε'); return; }
+    const wb = XLSX.utils.book_new();
+    const hdr = { font:{bold:true} };
+
+    // ── TAB: Dashboard ──
+    const kpiRows = [
+      ['Viking Wealth Dashboard — Backup ' + timeStr],
+      [],
+      ['KPI','Τιμή'],
+      ['Συνολική Αξία', document.getElementById('kpi-total')?.textContent||''],
+      ['Επενδεδυμένο', document.getElementById('kpi-invested')?.textContent||''],
+      ['Μη Πραγμ. Κέρδος', document.getElementById('kpi-unrealized')?.textContent||''],
+      ['Holdings', document.getElementById('kpi-count')?.textContent||''],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiRows), '📊 Dashboard');
+
+    // ── TAB: Current Prices ──
+    const priceData = JSON.parse(localStorage.getItem('vw_prices') || '{}');
+    const priceRows = [['Ticker','Τιμή (€/USD)'],
+      ...Object.entries(priceData).map(([k,v])=>[k, parseFloat(v)||0])];
+    priceRows.unshift(['EUR/USD', parseFloat(localStorage.getItem('vw_eurUsd'))||1.11]);
+    priceRows.unshift(['Ημερομηνία τιμών', localStorage.getItem('vw_priceDate')||'—']);
+    priceRows.unshift(['💹 Current Prices — ' + timeStr]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(priceRows), '💹 Current Prices');
+
+    // ── TAB: Holdings ──
+    const holdRows = [['💹 Holdings — ' + timeStr], [],
+      ['Ticker','Εταιρεία','Αγορά','Κατηγορία','Μετοχές','Avg Cost','Τρέχ. Τιμή','Αξία (€)','Κόστος (€)','P/L (€)','ROI %','Πλατφόρμα']];
+    holdings.forEach(h => {
+      const price = h.price || h.avgCost;
+      const val = h.shares * price * (h.ccy==='USD' ? (1/(parseFloat(localStorage.getItem('vw_eurUsd'))||1.11)) : 1);
+      const cost = h.invested || h.shares * h.avgCost;
+      const pl = val - cost;
+      holdRows.push([h.ticker, h.name, h.market, h.type, h.shares, h.avgCost, price,
+        Math.round(val*100)/100, Math.round(cost*100)/100,
+        Math.round(pl*100)/100, cost>0?Math.round(pl/cost*10000)/100:0,
+        h.platform||'—']);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(holdRows), '📋 Holdings');
+
+    // ── TAB: Transactions ──
+    const manualTx = JSON.parse(localStorage.getItem('vw_tx')||'[]');
+    const allTx = [...manualTx.map(t=>({...t,platform:t.platform||'Manual',shares:t.qty})), ...transactions];
+    allTx.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    const txRows = [['📝 Transactions — ' + timeStr],[],
+      ['Ημερομηνία','Ticker','Πλατφόρμα','Τύπος','Ποσότητα','Τιμή (€)','Σύνολο (€)','Σημείωση']];
+    allTx.forEach(t => txRows.push([t.date||'',t.ticker||'',t.platform||'',t.type||'',
+      t.shares||t.qty||0, t.price||0, t.total||0, t.note||'']));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(txRows), '📝 Transactions');
+
+    // ── TAB: Dividends ──
+    const divRows = [['💰 Dividends — ' + timeStr],[],
+      ['Ticker','Εταιρεία','Ετήσιο Μέρισμα (€)','Yield on Cost %','Yield on Value %']];
+    holdings.filter(h=>h.divAnn>0).forEach(h => {
+      const yoc = h.invested>0?Math.round(h.divAnn/h.invested*10000)/100:0;
+      const yov = h.value>0?Math.round(h.divAnn/h.value*10000)/100:0;
+      divRows.push([h.ticker,h.name,h.divAnn,yoc,yov]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(divRows), '💰 Dividends');
+
+    // ── TAB: KEM ──
+    const kemRows = [['🤝 KEM (NBG Securities/Sofi) — ' + timeStr],[],
+      ['Ticker','Μετοχές','Avg Cost (€)','Τρέχ. Τιμή (€)','Αξία (€)','P/L (€)','ROI %']];
+    const kemAbaxPrice = parseFloat(document.getElementById('kemABAX')?.value)||3.57;
+    const kemAlwnPrice = parseFloat(document.getElementById('kemALWN')?.value)||13.47;
+    kemRows.push(['ΑΒΑΞ',1450,3.47,kemAbaxPrice,Math.round(1450*kemAbaxPrice*100)/100,Math.round((1450*kemAbaxPrice-1450*3.47)*100)/100,Math.round((kemAbaxPrice/3.47-1)*10000)/100]);
+    kemRows.push(['ALWN',145,15.93,kemAlwnPrice,Math.round(145*kemAlwnPrice*100)/100,Math.round((145*kemAlwnPrice-145*15.93)*100)/100,Math.round((kemAlwnPrice/15.93-1)*10000)/100]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kemRows), '🤝 KEM');
+
+    // ── TAB: Savings ──
+    const savData = getSavings();
+    const savRows = [['🏦 Savings — ' + timeStr],[],
+      ['Λογαριασμός','Υπόλοιπο (€)','Επιτόκιο %','Σκοπός']];
+    savData.forEach(a => savRows.push([a.name, a.balance, a.rate, a.purpose]));
+    savRows.push([]);
+    savRows.push(['ΣΥΝΟΛΟ', savData.reduce((s,a)=>s+a.balance,0)]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(savRows), '🏦 Savings');
+
+    // ── TAB: Goals ──
+    const goalsData = getGoals();
+    const goalRows = [['🎯 Goals — ' + timeStr],[],
+      ['Τίτλος','Τύπος','Συνολικό (€)','Πληρωμένο (€)','Υπόλοιπο (€)','Μηνιαία (€)','Πρόοδος %','Έναρξη','Περιγραφή']];
+    goalsData.forEach(g => {
+      const rem = g.type==='debt'?Math.max(0,g.total-g.paid):0;
+      const pct = g.total>0?Math.round(g.paid/g.total*1000)/10:0;
+      goalRows.push([g.title,g.type==='debt'?'Αποπληρωμή':'Αποταμίευση',
+        g.total,g.paid,rem,g.monthly,pct,g.start,g.desc]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(goalRows), '🎯 Goals');
+
+    // ── TAB: Ακίνητα ──
+    const reRows = [['🏠 Ακίνητα — ' + timeStr],[],
+      ['Ακίνητο','Κατάσταση','Σημείωση'],
+      ['Αχαρνών','Μισθωμένο','€170/μήνα μερίδιο Βασίλη · Κόστος €6.458 · Αποσβέστηκε €1.190'],
+      ['Ίλιον (Εκτόρος 85)','Διαπραγμάτευση DoValue','Χρέος €77k · Αποθεματικό €3.750 · +€375/μήνα'],
+      ['Πετρούπολη','Ιδιοκατοίκηση','Κύρια κατοικία'],
+      [],
+      ['Αχαρνών — Απόσβεση'],
+      ['Συνολικό Κόστος (€)','Αποσβέστηκε (€)','Υπόλοιπο (€)','Μήνες ακόμα','Yield post-απόσβεση'],
+      [6458, 1190, 5268, 31, '31.6%'],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(reRows), '🏠 Ακίνητα');
+
+    // ── TAB: Strategy ──
+    const stratRows = [['🏔️ Strategy & FIRE — ' + timeStr],[],
+      ['Στόχος Allocation','Τρέχον %','Στόχος %'],
+      ['Greek Stocks','—','30%'],['ETF','—','30%'],['Foreign Stocks','—','15%'],
+      ['Crypto','—','12%'],['Bonds','—','10%'],['Cash','—','3%'],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(stratRows), '🏔️ Strategy');
+
+    // ── Write & download ──
+    XLSX.writeFile(wb, `viking_backup_${stamp}.xlsx`);
+    showNotification('💾 Backup ολοκληρώθηκε! JSON + HTML + Excel');
+  }, 900);
+}
+
+// Close modals on overlay click
+['txModal','divModal','savModal','goalModal','goalPayModal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
 </script>
 </body>
