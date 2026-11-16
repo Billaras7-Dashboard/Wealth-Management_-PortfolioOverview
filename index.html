@@ -840,53 +840,195 @@
 <!-- ======================== BUSINESS INVESTMENTS TAB ======================== -->
 <div id="tab-business" class="tab-content">
   <div class="section-title">🏪 Επενδύσεις σε Μαγαζιά & Επιχειρήσεις</div>
-  <div class="kpi-grid">
+
+  <!-- Summary KPIs -->
+  <div class="kpi-grid" style="margin-bottom:28px;">
     <div class="kpi-card green">
-      <div class="kpi-label">Συνολική Αξία</div>
-      <div class="kpi-value" id="biz-total">—</div>
-      <div class="kpi-sub">Εκτιμώμενη αξία</div>
+      <div class="kpi-label">✅ DRIPPIN Καθαρό Κέρδος</div>
+      <div class="kpi-value">+€5.700</div>
+      <div class="kpi-sub">ROI +38% — Ολοκληρώθηκε</div>
     </div>
     <div class="kpi-card gold">
-      <div class="kpi-label">Συνολικό Κεφάλαιο</div>
-      <div class="kpi-value" id="biz-invested">—</div>
-      <div class="kpi-sub">Επενδεδυμένο</div>
+      <div class="kpi-label">🟡 Κουφονήσια Επένδυση</div>
+      <div class="kpi-value">€22.800</div>
+      <div class="kpi-sub">Fresh κεφάλαιο — Σε εξέλιξη</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Μηνιαία Εισόδημα</div>
-      <div class="kpi-value" id="biz-income">—</div>
-      <div class="kpi-sub">Καθαρό / μήνα</div>
+      <div class="kpi-label">💸 Δάνειο Σωτήρη</div>
+      <div class="kpi-value">€15.000</div>
+      <div class="kpi-sub">Επιστρ. 2027 + 2028</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">ROI</div>
-      <div class="kpi-value" id="biz-roi">—</div>
-      <div class="kpi-sub">Επί επενδεδυμένου</div>
+      <div class="kpi-label">📊 Συνολική Έκθεση</div>
+      <div class="kpi-value">€37.800</div>
+      <div class="kpi-sub">Κουφονήσια (ατομικό)</div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">📋 Λίστα Επενδύσεων</div>
-    <div class="tbl-wrap">
-      <table id="bizTable">
-        <thead><tr>
-          <th>Επωνυμία / Περιγραφή</th>
-          <th>Τύπος</th>
-          <th>Ποσοστό %</th>
-          <th>Κεφάλαιο (€)</th>
-          <th>Εκτ. Αξία (€)</th>
-          <th>Μηνιαίο Εισόδημα (€)</th>
-          <th>Κατάσταση</th>
-          <th>Σημειώσεις</th>
-        </tr></thead>
-        <tbody id="bizBody">
-          <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:30px;">📌 Δεν έχουν καταχωρηθεί επενδύσεις ακόμα — θα ορισθούν σε επόμενη φάση</td></tr>
-        </tbody>
-      </table>
+
+  <!-- ═══ DRIPPIN CARD ═══ -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 16px rgba(0,0,0,0.25);">
+    <div style="background:linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(16,185,129,0.03) 100%);border-bottom:1px solid rgba(16,185,129,0.25);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">☕ Εστίαση — Καλλιθέα</div>
+        <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;">DRIPPIN</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Ευρυπίδου 46 · 30% συμμετοχή (Βασίλης + Πάνος) · Δεκ 2024 – Νοε 2026</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Καθαρό κέρδος</div>
+        <div style="font-size:32px;font-weight:900;color:var(--green);letter-spacing:-1px;">+€5.700</div>
+        <div style="display:inline-block;background:rgba(16,185,129,0.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(16,185,129,0.3);margin-top:4px;">✅ ΟΛΟΚΛΗΡΩΘΗΚΕ</div>
+      </div>
+    </div>
+    <div style="padding:24px;">
+      <!-- Metrics -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;">
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(239,68,68,0.2);">
+          <div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΕΠΕΝΔΥΣΗ</div>
+          <div style="font-size:20px;font-weight:800;color:var(--red);">-€15.000</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Σεπ 2025</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(16,185,129,0.2);">
+          <div style="font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΚΕΡΔΗ ΛΕΙΤΟΥΡΓΙΑΣ</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green);">+€5.700</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Απρ–Σεπ 2026</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(251,191,36,0.2);">
+          <div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ΤΙΜΗΜΑ ΠΩΛΗΣΗΣ</div>
+          <div style="font-size:20px;font-weight:800;color:var(--gold);">+€15.000</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">30% → €30k (50/50)</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(16,185,129,0.3);">
+          <div style="font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;">ROI</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green);">+38%</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">€5.700 / €15.000</div>
+        </div>
+      </div>
+
+      <!-- Δόσεις τιμήματος tracker -->
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">💸 Tracker Δόσεων Τιμήματος (€15.000)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:16px;">✅</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Δόση 1</div><div style="font-size:11px;color:var(--text-muted);">01/11 + 05/11/2026 — AB Account</div></div>
+          </div>
+          <div style="font-size:18px;font-weight:800;color:var(--green);">€5.000</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:16px;">⏳</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Δόση 2</div><div style="font-size:11px;color:var(--text-muted);">Τέλος Νοεμβρίου 2026</div></div>
+          </div>
+          <div style="font-size:18px;font-weight:800;color:var(--gold);">€5.000</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:16px;">⏳</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Δόση 3</div><div style="font-size:11px;color:var(--text-muted);">15 Δεκεμβρίου 2026</div></div>
+          </div>
+          <div style="font-size:18px;font-weight:800;color:var(--gold);">€5.000</div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="card" style="border-left:3px solid var(--gold);">
-    <div class="card-title">📝 Σημειώσεις</div>
-    <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
-      <p>🚧 <strong>Σε εξέλιξη:</strong> Η καταγραφή και αποτίμηση των επιχειρηματικών επενδύσεων θα οριστικοποιηθεί σε επόμενη συνεδρία.</p>
-      <p>📌 Θα περιλαμβάνει: συμμετοχές σε εταιρείες, επενδύσεις σε καταστήματα/franchise, λοιπές επιχειρηματικές δραστηριότητες.</p>
+
+  <!-- ═══ ΚΟΥΦΟΝΗΣΙΑ CARD ═══ -->
+  <div style="background:var(--bg-card);border:1px solid rgba(251,191,36,0.4);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 16px rgba(0,0,0,0.25);">
+    <div style="background:linear-gradient(135deg,rgba(251,191,36,0.14) 0%,rgba(251,191,36,0.03) 100%);border-bottom:1px solid rgba(251,191,36,0.25);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">🏖️ Εστίαση — Κουφονήσια</div>
+        <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;">Project ΚΑΛΑΜΙΑ</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Καθιερωμένη επιχείρηση · 20% συμμετοχή · Σε εξέλιξη</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Συνολική έκθεση</div>
+        <div style="font-size:32px;font-weight:900;color:var(--gold);letter-spacing:-1px;">€37.800</div>
+        <div style="display:inline-block;background:rgba(251,191,36,0.12);color:var(--gold);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(251,191,36,0.3);margin-top:4px;">🟡 ΣΕ ΔΙΑΠΡΑΓΜΑΤΕΥΣΗ</div>
+      </div>
+    </div>
+    <div style="padding:24px;">
+      <!-- Warning banner -->
+      <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--gold);">
+        ⚠️ <strong>Τα νούμερα δεν έχουν οριστικοποιηθεί.</strong> Θα ενημερωθούν μόλις υπογραφεί η συμφωνία.
+      </div>
+
+      <!-- Structure -->
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:22px;">
+        <!-- Συμμετοχή -->
+        <div style="background:var(--bg-secondary);border-radius:12px;padding:16px;border:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">📊 Δομή Συμμετοχής</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-muted);">Αποτίμηση 100%</span>
+              <span style="font-weight:700;color:var(--text-primary);">€228.000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-muted);">Εγγύηση μίσθωσης</span>
+              <span style="font-weight:700;color:var(--text-primary);">€28.000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-muted);">Συμμετοχή μας</span>
+              <span style="font-weight:700;color:var(--gold);">20%</span>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:13px;">
+              <span style="color:var(--text-muted);">Κόστος 20%</span>
+              <span style="font-weight:800;color:var(--gold);">€45.600</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;">
+              <span style="color:var(--text-muted);">Δικό μου (50%)</span>
+              <span style="font-weight:800;color:var(--accent);">€22.800</span>
+            </div>
+          </div>
+        </div>
+        <!-- Χρηματοδότηση -->
+        <div style="background:var(--bg-secondary);border-radius:12px;padding:16px;border:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">💰 Χρηματοδότηση (ατομικό)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-muted);">Fresh κεφάλαιο</span>
+              <span style="font-weight:700;color:var(--red);">-€22.800</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-muted);">Δάνειο Σωτήρη</span>
+              <span style="font-weight:700;color:var(--red);">-€15.000</span>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:13px;">
+              <span style="color:var(--text-muted);">Συνολική έκθεση</span>
+              <span style="font-weight:800;color:var(--red);">-€37.800</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding-top:4px;">
+              <span style="color:var(--text-muted);">Μίσθωση λήγει</span>
+              <span style="font-weight:700;color:var(--text-primary);">2031 (+3%/έτος)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Εισροές / Αποδόσεις -->
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">📈 Εκτιμώμενες Εισροές (ατομικό)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);">
+          <div><div style="font-size:12px;font-weight:700;color:var(--text-primary);">Επιστροφή δανείου — Σεζόν 2027</div><div style="font-size:11px;color:var(--text-muted);">€7.500 (50% των €15k)</div></div>
+          <div style="font-size:16px;font-weight:800;color:var(--green);">+€7.500</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);">
+          <div><div style="font-size:12px;font-weight:700;color:var(--text-primary);">Επιστροφή δανείου — Σεζόν 2028</div><div style="font-size:11px;color:var(--text-muted);">€7.500 (50% των €15k)</div></div>
+          <div style="font-size:16px;font-weight:800;color:var(--green);">+€7.500</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);">
+          <div><div style="font-size:12px;font-weight:700;color:var(--text-primary);">20% Κερδών / σεζόν (εκτ.)</div><div style="font-size:11px;color:var(--text-muted);">~€100-107k κέρδη × 10% (μερίδιό μου)</div></div>
+          <div style="font-size:16px;font-weight:800;color:var(--green);">~€10-11k</div>
+        </div>
+      </div>
+
+      <!-- Break-even -->
+      <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">Εκτιμώμενο Break-Even</div>
+          <div style="font-size:11px;color:var(--text-muted);">Fresh κεφάλαιο €22.800 ÷ ~€10k/σεζόν κέρδη</div>
+        </div>
+        <div style="font-size:22px;font-weight:900;color:var(--accent);">~2-3 σεζόν</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2598,6 +2740,15 @@ const DEFAULT_GOALS = [
     id:3, icon:'🚭', title:'Αποταμίευση Κάπνισμα', type:'saving',
     desc:'€5/ημέρα αποταμίευση από τη μέρα που έκοψα το κάπνισμα — 20 Ιουλίου 2026',
     total:0, paid:595, monthly:5, start:'2026-07-20'
+  },
+  {
+    id:4, icon:'💰', title:'Δάνειο Σωτήρη', type:'debt',
+    desc:'Δάνειο €15.000 για συμμετοχή στο project Καλαμιά (Κουφονήσια) — επιστροφή σε 2 δόσεις: €7.500 τέλος σεζόν 2027 + €7.500 τέλος σεζόν 2028',
+    total:15000, paid:0, monthly:7500, start:'2026-11-01',
+    installments:[
+      {label:'Σεζόν 2027', amount:7500, due:'2027-10-31', done:false},
+      {label:'Σεζόν 2028', amount:7500, due:'2028-10-31', done:false}
+    ]
   }
 ];
 function getGoals() {
@@ -2609,6 +2760,11 @@ function getGoals() {
   data.forEach(g => {
     if (g.id === 3 && g.monthly === 150) { g.monthly = 5; changed = true; }
   });
+  // Migration: add Δάνειο Σωτήρη if missing
+  if (!data.find(g => g.id === 4)) {
+    data.push(DEFAULT_GOALS.find(g => g.id === 4));
+    changed = true;
+  }
   if (changed) saveGoals(data);
   return data;
 }
@@ -2701,6 +2857,26 @@ function buildGoals() {
         ${barRow('% Μηνιαίας Εισφοράς', pctMonthly, 'var(--accent)', pctMonthly.toFixed(1)+'%')}
         ${barRow('% Υπολοίπου', pctRemaining, 'var(--red)', pctRemaining.toFixed(1)+'%')}
       </div>
+      ${g.installments && g.installments.length ? `
+      <div style="margin-bottom:14px;">
+        <div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">📅 Δόσεις Αποπληρωμής</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${g.installments.map((inst,idx) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:7px;background:${inst.done?'rgba(16,185,129,0.08)':'rgba(251,191,36,0.07)'};border:1px solid ${inst.done?'rgba(16,185,129,0.2)':'rgba(251,191,36,0.2)'};">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:14px;">${inst.done?'✅':'⏳'}</span>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--text-primary);">${inst.label}</div>
+                <div style="font-size:10px;color:var(--text-muted);">Λήξη: ${inst.due}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:15px;font-weight:800;color:${inst.done?'var(--green)':'var(--gold)'};">€${fmt(inst.amount)}</span>
+              ${!inst.done ? `<button onclick="markGoalInstallment(${g.id},${idx})" style="font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:var(--green);cursor:pointer;font-weight:700;">✓ Εξοφλήθη</button>` : ''}
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}
       <div class="goal-actions">
         ${g.type==='saving' ? `
         <div style="display:flex;align-items:center;gap:6px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:4px 8px 4px 12px;">
@@ -2819,6 +2995,16 @@ function quickAddGoal(id, amount) {
   saveGoals(data);
   buildGoals();
   showNotification(`✅ +€${amount.toFixed(2)} καταχωρήθηκε για "${g.title}"!`);
+}
+function markGoalInstallment(id, idx) {
+  const data = getGoals();
+  const g = data.find(x=>x.id===id);
+  if (!g || !g.installments || !g.installments[idx]) return;
+  g.installments[idx].done = true;
+  g.paid = (g.paid||0) + g.installments[idx].amount;
+  saveGoals(data);
+  buildGoals();
+  showNotification(`✅ Δόση "${g.installments[idx].label}" εξοφλήθηκε — +€${fmt(g.installments[idx].amount)}!`);
 }
 
 // ============================================================
