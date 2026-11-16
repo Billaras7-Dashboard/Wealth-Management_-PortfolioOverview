@@ -1090,13 +1090,13 @@
         </div>
         <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,0.25);">
           <div style="font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">ΕΧΕΙ ΑΠΟΣΒΕΣΤΕΙ</div>
-          <div style="font-size:22px;font-weight:800;color:var(--green);">€1.360</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">8 μήνες × €170 (Απρ–Νοε 2026)</div>
+          <div id="re-ach-collected" style="font-size:22px;font-weight:800;color:var(--green);">€—</div>
+          <div id="re-ach-collected-sub" style="font-size:10px;color:var(--text-muted);margin-top:3px;">— ενοίκια × €170</div>
         </div>
         <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(248,113,113,0.2);">
-          <div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">ΥΠΟΛΟΙΠΟ</div>
-          <div style="font-size:22px;font-weight:800;color:var(--red);">€5.098</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">~30 μήνες ακόμα → Ιούλ 2029</div>
+          <div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">ΥΠΟΛΟΙΠΟ ΑΠΟΣΒΕΣΗΣ</div>
+          <div id="re-ach-remaining" style="font-size:22px;font-weight:800;color:var(--red);">€—</div>
+          <div id="re-ach-remaining-sub" style="font-size:10px;color:var(--text-muted);margin-top:3px;">— μήνες ακόμα</div>
         </div>
       </div>
 
@@ -1104,17 +1104,17 @@
       <div style="margin-bottom:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Πρόοδος Απόσβεσης Κόστους Κτήσης</span>
-          <span style="font-size:14px;font-weight:800;color:var(--green);">21,1%</span>
+          <span id="re-ach-pct-label" style="font-size:14px;font-weight:800;color:var(--green);">—%</span>
         </div>
         <div style="background:var(--bg-secondary);border-radius:8px;height:20px;overflow:hidden;border:1px solid var(--border);">
-          <div style="width:21.1%;height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:8px;display:flex;align-items:center;padding-left:10px;">
-            <span style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;">€1.360</span>
+          <div id="re-ach-bar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:8px;display:flex;align-items:center;padding-left:10px;transition:width 0.6s ease;">
+            <span id="re-ach-bar-label" style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;"></span>
           </div>
         </div>
       </div>
 
       <!-- Pie Chart + legend -->
-      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);margin-bottom:16px;">
         <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
           <canvas id="acharnonPie" width="140" height="140"></canvas>
         </div>
@@ -1122,12 +1122,12 @@
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="width:14px;height:14px;border-radius:4px;background:var(--green);flex-shrink:0;"></div>
             <span style="font-size:12px;color:var(--text-muted);flex:1;">Αποσβέστηκε</span>
-            <span style="font-size:15px;font-weight:800;color:var(--green);">€1.360</span>
+            <span id="re-ach-pie-collected" style="font-size:15px;font-weight:800;color:var(--green);">€—</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="width:14px;height:14px;border-radius:4px;background:var(--red);flex-shrink:0;"></div>
             <span style="font-size:12px;color:var(--text-muted);flex:1;">Υπόλοιπο</span>
-            <span style="font-size:15px;font-weight:800;color:var(--red);">€5.098</span>
+            <span id="re-ach-pie-remaining" style="font-size:15px;font-weight:800;color:var(--red);">€—</span>
           </div>
           <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:center;gap:10px;">
             <div style="width:14px;height:14px;border-radius:4px;background:var(--gold);flex-shrink:0;"></div>
@@ -1137,6 +1137,17 @@
           <div style="font-size:11px;color:var(--text-muted);padding-top:4px;">
             📌 Μετά απόσβεση: <strong style="color:var(--gold);">€2.040/έτος</strong> καθαρό · Yield <strong style="color:var(--gold);">31,6%</strong>
           </div>
+        </div>
+      </div>
+
+      <!-- Rent Collection Tracker -->
+      <div style="border-top:1px solid var(--border);padding-top:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;">💶 Ιστορικό Εισπράξεων Ενοικίου</div>
+          <button onclick="openReModal('acharnon')" style="background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.4);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;">+ €170 Είσπραξη</button>
+        </div>
+        <div id="re-ach-history" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;">
+          <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px;">Δεν υπάρχουν καταχωρήσεις ακόμα</div>
         </div>
       </div>
     </div>
@@ -1243,36 +1254,44 @@
 
       <!-- Fund Building -->
       <div style="border-top:1px solid var(--border);padding-top:20px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">💰 Αποθεματικό Κεφάλαιο (ΕΤΕ Savings)</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;">💰 Αποθεματικό Κεφάλαιο (ΕΤΕ Savings)</div>
+          <button onclick="openReModal('ilion')" style="background:rgba(251,191,36,0.15);color:var(--gold);border:1px solid rgba(251,191,36,0.4);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;">+ €375 Αποταμίευση</button>
+        </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
           <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,0.2);">
             <div style="font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">ΑΠΟΤΑΜΙΕΥΜΕΝΟ</div>
-            <div style="font-size:22px;font-weight:800;color:var(--green);">€3.750</div>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">€375/μήνα × 10μ</div>
+            <div id="re-ilion-saved" style="font-size:22px;font-weight:800;color:var(--green);">€—</div>
+            <div id="re-ilion-saved-sub" style="font-size:10px;color:var(--text-muted);margin-top:3px;">€375/μήνα</div>
           </div>
           <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(248,113,113,0.2);">
             <div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">ΕΞΟΔΑ</div>
-            <div style="font-size:22px;font-weight:800;color:var(--red);">€1.390</div>
+            <div id="re-ilion-expenses" style="font-size:22px;font-weight:800;color:var(--red);">€—</div>
             <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">ΔΕΗ, νερό, ΔΕΣΦΑ κλπ</div>
           </div>
           <div style="background:var(--bg-secondary);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(251,191,36,0.2);">
             <div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">ΔΙΑΘΕΣΙΜΟ</div>
-            <div style="font-size:22px;font-weight:800;color:var(--gold);">€2.360</div>
+            <div id="re-ilion-net" style="font-size:22px;font-weight:800;color:var(--gold);">€—</div>
             <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">net αποθεματικό</div>
           </div>
         </div>
         <!-- Fund Progress Bar -->
-        <div style="margin-bottom:4px;">
+        <div style="margin-bottom:14px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Πρόοδος Αποθεματικού (στόχος €10.000)</span>
-            <span style="font-size:14px;font-weight:800;color:var(--gold);">23,6%</span>
+            <span id="re-ilion-pct-label" style="font-size:14px;font-weight:800;color:var(--gold);">—%</span>
           </div>
           <div style="background:var(--bg-secondary);border-radius:8px;height:16px;overflow:hidden;border:1px solid var(--border);">
-            <div style="width:23.6%;height:100%;background:linear-gradient(90deg,var(--gold),#fcd34d);border-radius:8px;display:flex;align-items:center;padding-left:8px;">
-              <span style="font-size:9px;font-weight:700;color:#000;white-space:nowrap;">€2.360</span>
+            <div id="re-ilion-bar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--gold),#fcd34d);border-radius:8px;display:flex;align-items:center;padding-left:8px;transition:width 0.6s ease;">
+              <span id="re-ilion-bar-label" style="font-size:9px;font-weight:700;color:#000;white-space:nowrap;"></span>
             </div>
           </div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:7px;">+€375/μήνα · ~21 μήνες για €10k στόχο</div>
+          <div id="re-ilion-months-left" style="font-size:11px;color:var(--text-muted);margin-top:7px;">+€375/μήνα</div>
+        </div>
+        <!-- Savings History -->
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📋 Ιστορικό Καταχωρήσεων</div>
+        <div id="re-ilion-history" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;">
+          <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px;">Δεν υπάρχουν καταχωρήσεις ακόμα</div>
         </div>
       </div>
     </div>
@@ -1394,6 +1413,37 @@
 </div>
 
 <!-- GOAL PAYMENT MODAL -->
+<!-- RE Modal -->
+<div class="modal-overlay" id="reModal">
+  <div class="modal-box" style="max-width:380px;">
+    <h3 id="re-modal-title">💶 Καταχώριση</h3>
+    <input type="hidden" id="re-modal-type">
+    <div class="form-row">
+      <label>Ποσό (€)</label>
+      <input type="number" class="price-input" id="re-modal-amount" step="0.01" placeholder="π.χ. 170" style="width:100%;">
+    </div>
+    <div class="form-row">
+      <label>Ημερομηνία</label>
+      <input type="date" class="price-input" id="re-modal-date" style="width:100%;">
+    </div>
+    <div class="form-row" id="re-modal-label-row">
+      <label id="re-modal-label-lbl">Περιγραφή (π.χ. Νοέμβριος 2026)</label>
+      <input type="text" class="price-input" id="re-modal-label" placeholder="π.χ. Νοέμβριος 2026" style="width:100%;">
+    </div>
+    <div class="form-row" id="re-modal-expense-row" style="display:none;">
+      <label>Είδος (αποταμίευση / έξοδο)</label>
+      <select class="price-input" id="re-modal-kind" style="width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:8px;">
+        <option value="saving">💰 Αποταμίευση (+)</option>
+        <option value="expense">📤 Έξοδο (-)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn-primary" onclick="submitReModal()" style="flex:1;">✅ Αποθήκευση</button>
+      <button class="btn-secondary" onclick="closeReModal()" style="flex:1;">Ακύρωση</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="goalPayModal">
   <div class="modal-box" style="max-width:360px;">
     <h3>💸 Καταχώριση Πληρωμής</h3>
@@ -1833,6 +1883,7 @@ function init() {
   buildDivTimeline();
   buildSavings();
   buildGoals();
+  buildRealestate();
   setLastUpdated();
   setTimeout(buildAcharnonPie, 100);
 }
@@ -2520,7 +2571,39 @@ document.addEventListener('DOMContentLoaded', init);
 // ============================================================
 // ΑΧΑΡΝΩΝ PIE CHART
 // ============================================================
+function drawAcharnonPie(collected, remaining) {
+  const canvas = document.getElementById('acharnonPie');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8;
+  const slices = [
+    { value: collected, color: '#22c55e' },
+    { value: remaining, color: '#f87171' }
+  ];
+  const totalVal = slices.reduce((s,sl) => s + sl.value, 0) || 1;
+  ctx.clearRect(0, 0, W, H);
+  let startAngle = -Math.PI / 2;
+  slices.forEach(sl => {
+    const sweep = (sl.value / totalVal) * 2 * Math.PI;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + sweep);
+    ctx.closePath(); ctx.fillStyle = sl.color; ctx.fill();
+    startAngle += sweep;
+  });
+  ctx.beginPath(); ctx.arc(cx, cy, r * 0.52, 0, 2 * Math.PI);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#1e2130';
+  ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText((collected / RE_ACHARNON_COST * 100).toFixed(0) + '%', cx, cy + 4);
+}
 function buildAcharnonPie() {
+  const data = getReAcharnon();
+  const collected = data.payments.reduce((s,p) => s + p.amount, 0);
+  const remaining = Math.max(0, RE_ACHARNON_COST - collected);
+  drawAcharnonPie(collected, remaining);
+}
+function _buildAcharnonPieLegacy() {
   const canvas = document.getElementById('acharnonPie');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -2996,6 +3079,214 @@ function quickAddGoal(id, amount) {
   buildGoals();
   showNotification(`✅ +€${amount.toFixed(2)} καταχωρήθηκε για "${g.title}"!`);
 }
+// ============================================================
+// REAL ESTATE TRACKING
+// ============================================================
+const RE_ACHARNON_COST = 6458;
+const RE_ILION_GOAL = 10000;
+
+function getReAcharnon() {
+  const s = localStorage.getItem('vw_re_acharnon');
+  if (!s) return { payments: [
+    {date:'2026-04-01',amount:170,label:'Απρίλιος 2026'},
+    {date:'2026-05-01',amount:170,label:'Μάιος 2026'},
+    {date:'2026-06-01',amount:170,label:'Ιούνιος 2026'},
+    {date:'2026-07-01',amount:170,label:'Ιούλιος 2026'},
+    {date:'2026-08-01',amount:170,label:'Αύγουστος 2026'},
+    {date:'2026-09-01',amount:170,label:'Σεπτέμβριος 2026'},
+    {date:'2026-10-01',amount:170,label:'Οκτώβριος 2026'},
+    {date:'2026-11-01',amount:170,label:'Νοέμβριος 2026'},
+  ] };
+  return JSON.parse(s);
+}
+function saveReAcharnon(data) { localStorage.setItem('vw_re_acharnon', JSON.stringify(data)); }
+
+function getReIlion() {
+  const s = localStorage.getItem('vw_re_ilion');
+  if (!s) return { entries: [
+    {date:'2026-01-15',amount:375,kind:'saving',label:'Αποταμίευση Ιανουάριος 2026'},
+    {date:'2026-02-15',amount:375,kind:'saving',label:'Αποταμίευση Φεβρουάριος 2026'},
+    {date:'2026-03-15',amount:375,kind:'saving',label:'Αποταμίευση Μάρτιος 2026'},
+    {date:'2026-04-15',amount:375,kind:'saving',label:'Αποταμίευση Απρίλιος 2026'},
+    {date:'2026-05-15',amount:375,kind:'saving',label:'Αποταμίευση Μάιος 2026'},
+    {date:'2026-06-15',amount:375,kind:'saving',label:'Αποταμίευση Ιούνιος 2026'},
+    {date:'2026-07-15',amount:375,kind:'saving',label:'Αποταμίευση Ιούλιος 2026'},
+    {date:'2026-08-15',amount:375,kind:'saving',label:'Αποταμίευση Αύγουστος 2026'},
+    {date:'2026-09-15',amount:375,kind:'saving',label:'Αποταμίευση Σεπτέμβριος 2026'},
+    {date:'2026-10-15',amount:375,kind:'saving',label:'Αποταμίευση Οκτώβριος 2026'},
+    {date:'2026-01-20',amount:1390,kind:'expense',label:'Έξοδα ακινήτου (ΔΕΗ, νερό, ΔΕΣΦΑ κλπ)'},
+  ] };
+  return JSON.parse(s);
+}
+function saveReIlion(data) { localStorage.setItem('vw_re_ilion', JSON.stringify(data)); }
+
+function buildRealestate() {
+  buildReAcharnon();
+  buildReIlion();
+}
+
+function buildReAcharnon() {
+  const data = getReAcharnon();
+  const collected = data.payments.reduce((s,p) => s + p.amount, 0);
+  const remaining = Math.max(0, RE_ACHARNON_COST - collected);
+  const pct = Math.min(100, collected / RE_ACHARNON_COST * 100);
+  const monthsLeft = Math.ceil(remaining / 170);
+  const count = data.payments.length;
+
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('re-ach-collected', '€' + fmt(collected));
+  setEl('re-ach-collected-sub', count + ' ενοίκια × €170');
+  setEl('re-ach-remaining', '€' + fmt(remaining));
+  setEl('re-ach-remaining-sub', '~' + monthsLeft + ' μήνες ακόμα');
+  setEl('re-ach-pct-label', pct.toFixed(1) + '%');
+  setEl('re-ach-pie-collected', '€' + fmt(collected));
+  setEl('re-ach-pie-remaining', '€' + fmt(remaining));
+  const bar = document.getElementById('re-ach-bar');
+  if (bar) { bar.style.width = pct + '%'; }
+  setEl('re-ach-bar-label', '€' + fmt(collected));
+
+  // Header KPI
+  const hdr = document.getElementById('re-ach-header-collected');
+  if (hdr) hdr.textContent = '€' + fmt(collected) + ' αποσβέστηκε';
+
+  // History
+  const hist = document.getElementById('re-ach-history');
+  if (hist) {
+    if (!data.payments.length) {
+      hist.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px;">Δεν υπάρχουν καταχωρήσεις ακόμα</div>';
+    } else {
+      hist.innerHTML = [...data.payments].reverse().map((p,i) => {
+        const realIdx = data.payments.length - 1 - i;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:7px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;">💶</span>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text-primary);">${p.label || p.date}</div><div style="font-size:10px;color:var(--text-muted);">${p.date}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:14px;font-weight:800;color:var(--green);">+€${fmt(p.amount)}</span>
+            <button onclick="deleteReEntry('acharnon',${realIdx})" style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:var(--red);cursor:pointer;">✕</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Redraw pie
+  drawAcharnonPie(collected, remaining);
+}
+
+function buildReIlion() {
+  const data = getReIlion();
+  const saved = data.entries.filter(e=>e.kind==='saving').reduce((s,e)=>s+e.amount,0);
+  const expenses = data.entries.filter(e=>e.kind==='expense').reduce((s,e)=>s+e.amount,0);
+  const net = saved - expenses;
+  const pct = Math.min(100, net / RE_ILION_GOAL * 100);
+  const monthsLeft = net < RE_ILION_GOAL ? Math.ceil((RE_ILION_GOAL - net) / 375) : 0;
+
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('re-ilion-saved', '€' + fmt(saved));
+  setEl('re-ilion-saved-sub', '€375/μήνα · ' + data.entries.filter(e=>e.kind==='saving').length + ' καταχωρήσεις');
+  setEl('re-ilion-expenses', '€' + fmt(expenses));
+  setEl('re-ilion-net', '€' + fmt(net));
+  setEl('re-ilion-pct-label', pct.toFixed(1) + '%');
+  const bar = document.getElementById('re-ilion-bar');
+  if (bar) { bar.style.width = pct.toFixed(1) + '%'; }
+  setEl('re-ilion-bar-label', '€' + fmt(net));
+  const sub = document.getElementById('re-ilion-months-left');
+  if (sub) sub.textContent = net < RE_ILION_GOAL
+    ? `+€375/μήνα · ~${monthsLeft} μήνες για €10k στόχο`
+    : '🎯 Στόχος επιτεύχθηκε!';
+
+  // Header
+  const hdr = document.getElementById('re-ilion-header-net');
+  if (hdr) hdr.textContent = '€' + fmt(net) + ' net';
+
+  // History
+  const hist = document.getElementById('re-ilion-history');
+  if (hist) {
+    if (!data.entries.length) {
+      hist.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px;">Δεν υπάρχουν καταχωρήσεις ακόμα</div>';
+    } else {
+      hist.innerHTML = [...data.entries].reverse().map((e,i) => {
+        const realIdx = data.entries.length - 1 - i;
+        const isSaving = e.kind === 'saving';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:7px;background:${isSaving?'rgba(16,185,129,0.06)':'rgba(239,68,68,0.06)'};border:1px solid ${isSaving?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)'};">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;">${isSaving?'💰':'📤'}</span>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text-primary);">${e.label || e.date}</div><div style="font-size:10px;color:var(--text-muted);">${e.date}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:14px;font-weight:800;color:${isSaving?'var(--green)':'var(--red)'};">${isSaving?'+':'-'}€${fmt(e.amount)}</span>
+            <button onclick="deleteReEntry('ilion',${realIdx})" style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:var(--red);cursor:pointer;">✕</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function openReModal(type) {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('re-modal-type').value = type;
+  document.getElementById('re-modal-date').value = today;
+  document.getElementById('re-modal-amount').value = '';
+  const now = new Date();
+  const months = ['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+  document.getElementById('re-modal-label').value = months[now.getMonth()] + ' ' + now.getFullYear();
+  if (type === 'acharnon') {
+    document.getElementById('re-modal-title').textContent = '💶 Είσπραξη Ενοικίου — Αχαρνών';
+    document.getElementById('re-modal-label-lbl').textContent = 'Μήνας ενοικίου';
+    document.getElementById('re-modal-expense-row').style.display = 'none';
+  } else {
+    document.getElementById('re-modal-title').textContent = '💰 Καταχώριση — Αποθεματικό Ιλίου';
+    document.getElementById('re-modal-label-lbl').textContent = 'Περιγραφή';
+    document.getElementById('re-modal-expense-row').style.display = '';
+    document.getElementById('re-modal-kind').value = 'saving';
+  }
+  document.getElementById('reModal').classList.add('open');
+  setTimeout(() => document.getElementById('re-modal-amount').focus(), 100);
+}
+function closeReModal() { document.getElementById('reModal').classList.remove('open'); }
+
+function submitReModal() {
+  const type = document.getElementById('re-modal-type').value;
+  const amount = parseFloat(document.getElementById('re-modal-amount').value);
+  const date = document.getElementById('re-modal-date').value;
+  const label = document.getElementById('re-modal-label').value.trim();
+  if (!amount || amount <= 0 || !date) { alert('Συμπλήρωσε ποσό και ημερομηνία'); return; }
+
+  if (type === 'acharnon') {
+    const data = getReAcharnon();
+    data.payments.push({date, amount, label: label || date});
+    saveReAcharnon(data);
+    buildReAcharnon();
+    showNotification(`✅ Είσπραξη €${fmt(amount)} καταχωρήθηκε για Αχαρνών!`);
+  } else {
+    const kind = document.getElementById('re-modal-kind').value;
+    const data = getReIlion();
+    data.entries.push({date, amount, kind, label: label || date});
+    saveReIlion(data);
+    buildReIlion();
+    showNotification(`✅ ${kind==='saving'?'Αποταμίευση':'Έξοδο'} €${fmt(amount)} καταχωρήθηκε!`);
+  }
+  closeReModal();
+}
+
+function deleteReEntry(type, idx) {
+  if (!confirm('Διαγραφή αυτής της καταχώρισης;')) return;
+  if (type === 'acharnon') {
+    const data = getReAcharnon();
+    data.payments.splice(idx, 1);
+    saveReAcharnon(data);
+    buildReAcharnon();
+  } else {
+    const data = getReIlion();
+    data.entries.splice(idx, 1);
+    saveReIlion(data);
+    buildReIlion();
+  }
+}
+
 function markGoalInstallment(id, idx) {
   const data = getGoals();
   const g = data.find(x=>x.id===id);
