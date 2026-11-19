@@ -3200,9 +3200,25 @@ function buildGoals() {
         </div>
       </div>
       <div class="goal-bars">
-        ${barRow('% Αποπληρωμής', pctPaidOff, 'var(--green)', pctPaidOff.toFixed(1)+'%')}
-        ${barRow('% Μηνιαίας Εισφοράς', pctMonthly, 'var(--accent)', pctMonthly.toFixed(1)+'%')}
-        ${barRow('% Υπολοίπου', pctRemaining, 'var(--red)', pctRemaining.toFixed(1)+'%')}
+        ${g.id !== 3 ? barRow('% Αποπληρωμής', pctPaidOff, 'var(--green)', pctPaidOff.toFixed(1)+'%') : ''}
+        ${g.id !== 3 ? barRow('% Μηνιαίας Εισφοράς', pctMonthly, 'var(--accent)', pctMonthly.toFixed(1)+'%') : ''}
+        ${g.id !== 3 ? barRow('% Υπολοίπου', pctRemaining, 'var(--red)', pctRemaining.toFixed(1)+'%') : ''}
+        ${g.id === 3 ? (() => {
+          const startD = new Date(g.start);
+          const daysSmokeFree = Math.floor((new Date() - startD) / 86400000);
+          const milestone = daysSmokeFree < 30 ? 30 : daysSmokeFree < 100 ? 100 : daysSmokeFree < 365 ? 365 : Math.ceil(daysSmokeFree/365)*365;
+          const pctDays = Math.min(100, daysSmokeFree / milestone * 100);
+          return `<div class="goal-bar-row" style="margin-top:6px;padding-top:8px;border-top:1px solid var(--border);">
+            <div class="goal-bar-label" style="color:var(--text-muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">🚭 Ημέρες χωρίς κάπνισμα</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <div class="goal-bar-track" style="flex:1;">
+                <div class="goal-bar-fill" style="width:${pctDays.toFixed(1)}%;background:linear-gradient(90deg,#10b981,#34d399);"></div>
+              </div>
+              <div style="font-size:14px;font-weight:800;color:#10b981;min-width:52px;text-align:right;">${daysSmokeFree} μέρες</div>
+            </div>
+            <div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Επόμενος στόχος: ${milestone} μέρες (${(milestone - daysSmokeFree)} ακόμα)</div>
+          </div>`;
+        })() : ''}
       </div>
       ${g.installments && g.installments.length ? `
       <div style="margin-bottom:14px;">
