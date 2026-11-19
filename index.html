@@ -298,10 +298,10 @@
   <button class="tab-btn" onclick="showTab('kem')">🤝 KEM (Sofi)</button>
   <button class="tab-btn" onclick="showTab('savings')">🏦 Savings</button>
   <button class="tab-btn" onclick="showTab('allocation')">🎯 Allocation</button>
-  <button class="tab-btn" onclick="showTab('business')">🏪 Επενδύσεις Μαγαζιά</button>
-  <button class="tab-btn" onclick="showTab('realestate')">🏠 Ακίνητα</button>
+  <button class="tab-btn" onclick="showTab('business')">💼 Investments / Μαγαζιά</button>
+  <button class="tab-btn" onclick="showTab('realestate')">🏠 Real Estate Assets</button>
   <button class="tab-btn" onclick="showTab('goals')">🎯 Goals</button>
-  <button class="tab-btn" onclick="showTab('strategy')">🏔️ Strategy & FIRE</button>
+  <button class="tab-btn" onclick="showTab('strategy')">📊 Strategy</button>
 </div>
 
 <div class="main">
@@ -808,7 +808,47 @@
 
 <!-- ======================== ALLOCATION TAB ======================== -->
 <div id="tab-allocation" class="tab-content">
-  <div class="section-title">🎯 Allocation & Risk — Τρέχουσα vs Στόχος</div>
+  <div class="section-title">🎯 Allocation & Risk — Τρέχουσα vs Στόχος 2027</div>
+
+  <!-- KPIs σύνοψη -->
+  <div class="kpi-grid" style="margin-bottom:20px;">
+    <div class="kpi-card">
+      <div class="kpi-label">Ελληνικές</div>
+      <div class="kpi-value" style="color:var(--gold);">43,3%</div>
+      <div class="kpi-sub">Στόχος: 27% — Overweight</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ETF</div>
+      <div class="kpi-value" style="color:var(--red);">9,7%</div>
+      <div class="kpi-sub">Στόχος: 31% — Underweight ⬆️</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ξένες Μετοχές</div>
+      <div class="kpi-value" style="color:var(--gold);">20,6%</div>
+      <div class="kpi-sub">Στόχος: 12% — Slight over</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Crypto</div>
+      <div class="kpi-value" style="color:var(--gold);">15,6%</div>
+      <div class="kpi-sub">Στόχος: 10% — Overweight</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ομόλογα</div>
+      <div class="kpi-value" style="color:var(--red);">10,8%</div>
+      <div class="kpi-sub">Στόχος: 15% — Underweight ⬆️</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Χρυσός</div>
+      <div class="kpi-value" style="color:var(--red);">0%</div>
+      <div class="kpi-sub">Στόχος: 5% — Νέα κατηγορία ⬆️</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cash (εκτός %)</div>
+      <div class="kpi-value" id="kpi-cash-pct" style="color:var(--text-muted);">€43k</div>
+      <div class="kpi-sub">Στόχος: ≥€10k αύξηση/χρόνο</div>
+    </div>
+  </div>
+
   <div class="two-col">
     <div class="card">
       <div class="card-title">Τρέχουσα Κατανομή (ανά Κατηγορία)</div>
@@ -819,27 +859,113 @@
       <div class="chart-wrap"><canvas id="allocCompareChart"></canvas></div>
     </div>
   </div>
+
+  <!-- Αναλυτικός πίνακας v6 -->
   <div class="card">
-    <div class="card-title">Ανάλυση Αποκλίσεων</div>
+    <div class="card-title">Ανάλυση Αποκλίσεων — Πλάνο v6</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Κατηγορία</th><th>Τρέχον €</th><th>Τρέχον %</th><th>Στόχος %</th><th>Απόκλιση</th><th>Αντιμετώπιση</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Ελληνικές</strong></td>
+            <td>€61.606</td>
+            <td style="color:var(--gold);font-weight:700;">43,3%</td>
+            <td>27%</td>
+            <td style="color:var(--red);">-16,3%</td>
+            <td style="font-size:11px;color:var(--text-muted);">€150/μήνα ροτάρισμα — φυσική αραίωση λόγω νέων αγορών ETF</td>
+          </tr>
+          <tr>
+            <td><strong>ETF</strong></td>
+            <td>€13.774</td>
+            <td style="color:var(--red);font-weight:700;">9,7%</td>
+            <td>31%</td>
+            <td style="color:var(--green);">+21,3%</td>
+            <td style="font-size:11px;color:var(--text-muted);">VWCE €400 + EXUS €400/μήνα</td>
+          </tr>
+          <tr>
+            <td><strong>Ξένες Μετοχές</strong></td>
+            <td>€29.271</td>
+            <td style="color:var(--gold);font-weight:700;">20,6%</td>
+            <td>12%</td>
+            <td style="color:var(--red);">-8,6%</td>
+            <td style="font-size:11px;color:var(--text-muted);">Hold — καμία νέα αγορά (NVDA, MSFT, BYD κλπ)</td>
+          </tr>
+          <tr>
+            <td><strong>Crypto</strong></td>
+            <td>€22.180</td>
+            <td style="color:var(--gold);font-weight:700;">15,6%</td>
+            <td>10%</td>
+            <td style="color:var(--red);">-5,6%</td>
+            <td style="font-size:11px;color:var(--text-muted);">Hold — καμία νέα αγορά 2027</td>
+          </tr>
+          <tr>
+            <td><strong>Ομόλογα</strong></td>
+            <td>€15.349</td>
+            <td style="color:var(--red);font-weight:700;">10,8%</td>
+            <td>15%</td>
+            <td style="color:var(--green);">+4,2%</td>
+            <td style="font-size:11px;color:var(--text-muted);">EUNA €300/μήνα</td>
+          </tr>
+          <tr>
+            <td><strong>Χρυσός</strong></td>
+            <td>€0</td>
+            <td style="color:var(--red);font-weight:700;">0%</td>
+            <td>5%</td>
+            <td style="color:var(--green);">+5%</td>
+            <td style="font-size:11px;color:var(--text-muted);">4GLD €100/μήνα — νέα κατηγορία</td>
+          </tr>
+          <tr>
+            <td><strong>Cash</strong></td>
+            <td id="alloc-cash-val">—</td>
+            <td id="alloc-cash-pct" style="color:var(--text-muted);font-weight:700;">—%</td>
+            <td style="color:var(--text-muted);">TBD</td>
+            <td style="color:var(--text-muted);">—</td>
+            <td style="font-size:11px;color:var(--text-muted);">Θα οριστεί στόχος στην επόμενη αναθεώρηση</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:rgba(99,102,241,0.06);">
+            <td><strong>ΣΥΝΟΛΟ</strong></td>
+            <td><strong>€142.180+</strong></td>
+            <td><strong>100%</strong></td>
+            <td>100%</td>
+            <td>—</td>
+            <td style="font-size:11px;">Portfolio Νοέμβριος 2026</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Live deviation bars - driven by JS -->
+  <div class="card">
+    <div class="card-title">Αναλυτικές Αποκλίσεις (live)</div>
     <table>
       <thead><tr><th>Κατηγορία</th><th>Τρέχον %</th><th>Στόχος %</th><th>Απόκλιση</th><th>Ποσό για Εξισορρόπηση</th><th>Σχόλιο</th></tr></thead>
       <tbody id="allocBody"></tbody>
     </table>
   </div>
+
   <div class="card" style="border-left:3px solid var(--accent);">
-    <div class="card-title">Στρατηγική Rebalancing</div>
+    <div class="card-title">Στρατηγική Rebalancing 2027</div>
     <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
-      <p>🎯 <strong>Στόχος allocation (Locked):</strong> Greek Stocks 30% | ETF 30% | Foreign Stocks 15% | Crypto 12% | Bonds 10% | Cash 3%</p>
-      <p>💡 <strong>Crypto overweight:</strong> Τρέχον 15.6% vs στόχος 12%. Δεν πουλάμε — αφήνουμε φυσική αραίωση με νέες αγορές ETF.</p>
-      <p>💡 <strong>Bonds underweight:</strong> Σταδιακή αύξηση με Global Agg Bond ETF €4.56/μτχ + 4 ομολόγα ήδη.</p>
-      <p>💡 <strong>ETF underweight:</strong> Προτεραιότητα VUAA + VWCE με μηνιαίες αγορές.</p>
+      <p>🎯 <strong>Στόχος allocation v6 (Locked):</strong> Ελληνικές 27% | ETF 31% | Ξένες 12% | Crypto 10% | Ομόλογα 15% | Χρυσός 5%</p>
+      <p>💡 <strong>ETF underweight (+21,3%):</strong> Προτεραιότητα VWCE €400 + EXUS €400/μήνα. Ο μεγαλύτερος στόχος 2027.</p>
+      <p>💡 <strong>Ελληνικές overweight (-16,3%):</strong> €150/μήνα ροτάρισμα (ΠΕΙΡ/ΕΤΕ/ΑΛΦΑ/ΔΕΗ/ΜΤΛΝ/ΓΕΚ). Φυσική αραίωση % καθώς αυξάνονται ETF.</p>
+      <p>💡 <strong>Ομόλογα underweight (+4,2%):</strong> EUNA €300/μήνα. Carry ~3,5% + αντιστάθμιση equity volatility.</p>
+      <p>💡 <strong>Χρυσός 0% → 5%:</strong> 4GLD €100/μήνα. Goldman τέλος 2027: $4.650–4.800 (+15%).</p>
+      <p>💡 <strong>Crypto overweight (-5,6%):</strong> Hold — καμία νέα αγορά. Ceiling στόχος 10%.</p>
+      <p>💡 <strong>Cash:</strong> Στόχος ≥€10.000 αύξηση/χρόνο (δεν μετράται σε %). Τρέχον: €43.000. Θα ορίσουμε % target στην επόμενη αναθεώρηση.</p>
     </div>
   </div>
 </div>
 
 <!-- ======================== BUSINESS INVESTMENTS TAB ======================== -->
 <div id="tab-business" class="tab-content">
-  <div class="section-title">🏪 Επενδύσεις σε Μαγαζιά & Επιχειρήσεις</div>
+  <div class="section-title">💼 Investments / Μαγαζιά & Επιχειρήσεις</div>
 
   <!-- Summary KPIs -->
   <div class="kpi-grid" style="margin-bottom:28px;">
@@ -1035,7 +1161,7 @@
 
 <!-- ======================== REAL ESTATE TAB ======================== -->
 <div id="tab-realestate" class="tab-content">
-  <div class="section-title">🏠 Ακίνητα — Χαρτοφυλάκιο</div>
+  <div class="section-title">🏠 Real Estate Assets</div>
 
   <!-- Summary KPIs -->
   <div class="kpi-grid" style="margin-bottom:28px;">
@@ -1162,7 +1288,7 @@
       <div>
         <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">🏢 Ακίνητο 2 / 3</div>
         <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;line-height:1.1;">Διαμέρισμα Ιλίου</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Εκτόρος 85, Α΄ Όροφος · 85τμ · Ακίνητο νονού</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Εκτόρος 85, Α΄ Όροφος · 55τμ · Ακίνητο νονού</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Αποθεματικό</div>
@@ -1297,24 +1423,6 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════
-       PROPERTY 3 — ΠΕΤΡΟΥΠΟΛΗ
-  ═══════════════════════════════════════════ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 16px rgba(0,0,0,0.25);">
-    <div style="background:linear-gradient(135deg,rgba(100,116,139,0.14) 0%,rgba(100,116,139,0.03) 100%);border-bottom:1px solid rgba(100,116,139,0.2);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-      <div>
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">🏠 Ακίνητο 3 / 3</div>
-        <div style="font-size:26px;font-weight:900;color:var(--text-primary);letter-spacing:-0.5px;line-height:1.1;">Κατοικία Πετρούπολης</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:5px;">Κύρια κατοικία · Ιδιοκατοίκηση</div>
-      </div>
-      <div>
-        <div style="display:inline-block;background:rgba(100,116,139,0.12);color:var(--text-muted);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(100,116,139,0.2);margin-top:8px;">🏡 ΙΔΙΟΚΑΤΟΙΚΗΣΗ</div>
-      </div>
-    </div>
-    <div style="padding:18px 24px;font-size:12px;color:var(--text-muted);">
-      Δεν συμπεριλαμβάνεται στους υπολογισμούς yield &amp; εισοδήματος
-    </div>
-  </div>
 </div>
 
 <!-- ======================== GOALS TAB ======================== -->
@@ -1431,7 +1539,7 @@
       <input type="text" class="price-input" id="re-modal-label" placeholder="π.χ. Νοέμβριος 2026" style="width:100%;">
     </div>
     <div class="form-row" id="re-modal-expense-row" style="display:none;">
-      <label>Είδος (αποταμίευση / έξοδο)</label>
+      <label>Είδος</label>
       <select class="price-input" id="re-modal-kind" style="width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:8px;">
         <option value="saving">💰 Αποταμίευση (+)</option>
         <option value="expense">📤 Έξοδο (-)</option>
@@ -1465,82 +1573,200 @@
 
 <!-- ======================== STRATEGY TAB ======================== -->
 <div id="tab-strategy" class="tab-content">
-  <div class="section-title">🏔️ Strategy, Monthly Picks & FIRE</div>
+  <div class="section-title">🏔️ Στρατηγική Επενδύσεων 2027</div>
 
-  <div class="two-col">
-    <div class="strategy-card">
-      <h3>🎯 Investment Philosophy</h3>
-      <ul>
-        <li>Μακροπρόθεσμος ορίζοντας (10-20 χρόνια) — DCA, hold, reinvest</li>
-        <li>Core: ETF (VUAA, VWCE) για passive growth + dividends</li>
-        <li>Greek stocks: high conviction, υψηλό beta ελληνικής οικονομίας</li>
-        <li>Crypto: asymmetric upside, συγκεκριμένο ceiling 12%</li>
-        <li>Bonds: αντισταθμιστική θέση, σταδιακή αύξηση</li>
-        <li>Μερίσματα: reinvest 100% (DRIP strategy)</li>
-      </ul>
+  <!-- Investment Philosophy -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,0.14) 0%,rgba(99,102,241,0.03) 100%);border-bottom:1px solid rgba(99,102,241,0.2);padding:16px 24px;">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;">Investment Philosophy</div>
+      <div style="font-size:20px;font-weight:800;color:var(--text-primary);">DCA · Diversification · Conviction</div>
     </div>
-    <div class="strategy-card">
-      <h3>📅 Monthly Investment Plan (Aug 2026–Dec 2027)</h3>
-      <ul>
-        <li>VUAA: ~3-4 μτχ/μήνα @ ~€130 (via TR)</li>
-        <li>VWCE: ~1 μτχ/μήνα @ ~€168 (via TR)</li>
-        <li>Global Agg Bond: ~22 μτχ/μήνα @ ~€4.56 (via TR)</li>
-        <li>Realty Income: ~1 μτχ/μήνα @ ~€55 (via TR)</li>
-        <li>MTLN target: 350 μτχ by Dec 2027</li>
-        <li>BTC: €50/μήνα DCA (Binance)</li>
-        <li>TR Savings: +€250/μήνα πρόσθετο</li>
-      </ul>
+    <div style="padding:20px 24px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px 16px;border-left:3px solid var(--accent);">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">🌍 Core — Παγκόσμια Διασπορά</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">VWCE + EXUS: €800/μήνα DCA σε παγκόσμιες αγορές. Το EXUS καλύπτει Ευρώπη + Ιαπωνία χωρίς επικάλυψη με ήδη βαριά θέση ΗΠΑ.</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px 16px;border-left:3px solid var(--gold);">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">🏦 Ελληνικές — High Conviction</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">ΠΕΙΡ / ΕΤΕ / ΑΛΦΑ / ΔΕΗ / METLEN / ΓΕΚ ΤΕΡΝΑ · €150/μήνα ροτάρισμα. Περιθώριο ~22–36% από τιμές-στόχους + μέρισμα ~3%.</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green);">
+          <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">🛡️ Ομόλογα — Αντιστάθμιση</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">EUNA (Global Agg EUR Hedged): €300/μήνα. Carry ~3–3,5%. Αντισταθμίζει έναντι equity drawdown και προσθέτει σταθερό εισόδημα.</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px 16px;border-left:3px solid #f59e0b;">
+          <div style="font-size:11px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">🥇 Χρυσός — Ασφαλές Καταφύγιο</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">4GLD (Xetra-Gold): €100/μήνα. Goldman τέλος 2027: $4.650–4.800 (+15%). Αντιστάθμιση γεωπολιτικού κινδύνου.</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px 16px;border-left:3px solid var(--red);">
+          <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">🇺🇸 VUAA — ΗΠΑ DCA</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">2 τεμ./μήνα extra (ήδη βαριά θέση ΗΠΑ: Nvidia, MSFT, VUAA ~€43k). Συνεχίζεται DCA αλλά χωρίς νέο κεφάλαιο — μόνο τεμάχια.</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:10px;padding:14px 16px;border-left:3px solid #8b5cf6;">
+          <div style="font-size:11px;font-weight:700;color:#8b5cf6;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">₿ Crypto — Hold</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">Καμία νέα αγορά το 2027. Διατήρηση θέσης (ETH, ADA, BTC). Ceiling στόχος 10% του portfolio.</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">🔥 FIRE Progress</div>
-    <div class="kpi-grid">
-      <div class="kpi-card gold">
-        <div class="kpi-label">Portfolio Value</div>
-        <div class="kpi-value">€142.180</div>
-        <div class="kpi-sub">Τρέχουσα αξία</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">FIRE Target (est.)</div>
-        <div class="kpi-value">€800.000</div>
-        <div class="kpi-sub">4% SWR → €32K/χρόνο</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">Πρόοδος</div>
-        <div class="kpi-value">17.8%</div>
-        <div class="kpi-sub">€142K / €800K</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Εκτιμώμενο FIRE Year</div>
-        <div class="kpi-value">~2040</div>
-        <div class="kpi-sub">@12% ετήσιο return</div>
-      </div>
+  <!-- Strategy KPIs -->
+  <div class="kpi-grid" style="margin-bottom:20px;">
+    <div class="kpi-card green">
+      <div class="kpi-label">💶 Βασικό €/μήνα</div>
+      <div class="kpi-value">€1.350</div>
+      <div class="kpi-sub">VWCE+EXUS+EUNA+4GLD+ΕΛΛ</div>
     </div>
-    <div style="margin:10px 0 4px;font-size:12px;color:var(--text-muted);">FIRE Progress: 17.8% (€142K / €800K στόχος)</div>
-    <div class="fire-bar"><div class="fire-fill" style="width:17.8%;">17.8%</div></div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;"><span>€0</span><span>€200K</span><span>€400K</span><span>€600K</span><span>€800K 🎯</span></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">⚠️ Monthly Picks — Pending Strategy Review</div>
-    <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;padding:10px;background:rgba(245,158,11,0.05);border-radius:8px;border:1px solid rgba(245,158,11,0.2);">
-      <p>🚧 <strong>Τα Monthly Picks θα οριστικοποιηθούν μετά από αναλυτική συζήτηση στρατηγικής.</strong></p>
-      <p>Περιλαμβάνει: επανεξέταση όλων των assets (savings + investments + real estate), FIRE προσαρμογή, και υλοποίηση monthly action plan.</p>
-      <p>📌 Reminder: Ilion apartment (inheritance) + Μελίσσι Ξυλόκαστρο house = σημαντικά real estate assets που πρέπει να ενσωματωθούν στον συνολικό υπολογισμό net worth.</p>
+    <div class="kpi-card gold">
+      <div class="kpi-label">📈 Με VUAA extra</div>
+      <div class="kpi-value">€1.610</div>
+      <div class="kpi-sub">+2 τεμ. VUAA @€129,95</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📅 Σύνολο 2027</div>
+      <div class="kpi-value">€19.319</div>
+      <div class="kpi-sub">12 μήνες × €1.610</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">🎯 Base Απόδοση 2027</div>
+      <div class="kpi-value">+€16.593</div>
+      <div class="kpi-sub">Κέρδος πάνω σε εισφορές</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">🏠 Real Estate (Εκτίμηση)</div>
-    <table>
-      <thead><tr><th>Ακίνητο</th><th>Εκτιμώμενη Αξία</th><th>Κατάσταση</th><th>Σημείωση</th></tr></thead>
-      <tbody>
-        <tr><td>Ιλίου Διαμέρισμα</td><td>— (TBD)</td><td style="color:var(--gold)">Κληρονομιά</td><td style="font-size:12px;color:var(--text-muted)">Αξιολόγηση σε εξέλιξη</td></tr>
-        <tr><td>Μελίσσι Ξυλόκαστρο</td><td>— (TBD)</td><td style="color:var(--green)">Ιδιοκτησία</td><td style="font-size:12px;color:var(--text-muted)">Θερινή κατοικία</td></tr>
-      </tbody>
-    </table>
+  <!-- Monthly Picks Table -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+    <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--text-primary);">📋 Monthly Picks 2027</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Βασικό πλάνο — ίδιο ποσό κάθε μήνα · VUAA extra 2 τεμ.</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:6px;padding:5px 10px;">📌 KPIs ενημερώνονται χειροκίνητα — βλ. σημείωση παρακάτω</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Ticker</th><th>Ρόλος</th><th>Πλατφόρμα</th><th>Τεμάχια/μήνα</th><th>€/μήνα</th><th>Τιμή (Νοε 26)</th><th>TER</th><th>Outlook</th><th>Fit</th><th>Σκορ/20</th><th>Base 12μ</th><th>Bull</th><th>Bear</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--accent);">VWCE</strong></td>
+            <td>Παγκόσμιο core</td>
+            <td>Trade Republic</td>
+            <td><strong style="color:var(--accent);">~2 τεμ.</strong></td>
+            <td><strong style="color:var(--green);">€400</strong></td>
+            <td>€169,24</td>
+            <td>0,19%</td>
+            <td style="color:var(--green);font-weight:700;">9/10</td>
+            <td style="color:var(--green);font-weight:700;">9/10</td>
+            <td><strong style="color:var(--green);">18</strong></td>
+            <td>+12%</td><td>+15%</td><td>-10%</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--accent);">EXUS</strong></td>
+            <td>Ανεπτυγμένες εκτός ΗΠΑ</td>
+            <td>Trade Republic</td>
+            <td><strong style="color:var(--accent);">~10 τεμ.</strong></td>
+            <td><strong style="color:var(--green);">€400</strong></td>
+            <td>€40,03</td>
+            <td>0,15%</td>
+            <td style="color:var(--green);font-weight:700;">8/10</td>
+            <td style="color:var(--green);font-weight:700;">10/10</td>
+            <td><strong style="color:var(--green);">18</strong></td>
+            <td>+10%</td><td>+16%</td><td>-10%</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--accent);">EUNA</strong></td>
+            <td>Ομόλογα — ασφάλεια</td>
+            <td>Trade Republic</td>
+            <td><strong style="color:var(--accent);">~62 τεμ.</strong></td>
+            <td><strong style="color:var(--green);">€300</strong></td>
+            <td>€4,87</td>
+            <td>0,10%</td>
+            <td style="color:var(--gold);font-weight:700;">8/10</td>
+            <td style="color:var(--green);font-weight:700;">10/10</td>
+            <td><strong style="color:var(--green);">18</strong></td>
+            <td>+3,5%</td><td>+6%</td><td>0%</td>
+          </tr>
+          <tr>
+            <td><strong style="color:#f59e0b;">4GLD</strong></td>
+            <td>Χρυσός</td>
+            <td>Trade Republic</td>
+            <td><strong style="color:var(--accent);">~1 τεμ.</strong></td>
+            <td><strong style="color:var(--green);">€100</strong></td>
+            <td>€112,98</td>
+            <td>0,36%</td>
+            <td style="color:var(--gold);font-weight:700;">7/10</td>
+            <td style="color:var(--gold);font-weight:700;">8/10</td>
+            <td><strong style="color:var(--gold);">15</strong></td>
+            <td>+15%</td><td>+25%</td><td>-10%</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--gold);">ΕΛΛ</strong></td>
+            <td>Ελληνικές (καλάθι)</td>
+            <td>Πειραιώς</td>
+            <td><strong style="color:var(--accent);">Ροτάρισμα</strong></td>
+            <td><strong style="color:var(--green);">€150</strong></td>
+            <td>κατά μετοχή</td>
+            <td>—</td>
+            <td style="color:var(--gold);font-weight:700;">8/10</td>
+            <td style="color:var(--gold);font-weight:700;">6/10</td>
+            <td><strong style="color:var(--gold);">14</strong></td>
+            <td>+15%</td><td>+25%</td><td>-15%</td>
+          </tr>
+          <tr style="border-top:2px solid var(--border);">
+            <td><strong style="color:var(--text-muted);">VUAA</strong></td>
+            <td>ΗΠΑ DCA extra</td>
+            <td>Trade Republic</td>
+            <td><strong style="color:var(--text-muted);">2 τεμ.</strong></td>
+            <td><strong style="color:var(--text-muted);">~€260</strong></td>
+            <td>€129,95</td>
+            <td>0,07%</td>
+            <td style="color:var(--gold);font-weight:700;">8/10</td>
+            <td style="color:var(--red);font-weight:700;">4/10</td>
+            <td><strong style="color:var(--text-muted);">12</strong></td>
+            <td>+14%</td><td>+16%</td><td>-12%</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:rgba(99,102,241,0.06);">
+            <td colspan="2"><strong>ΒΑΣΙΚΟ ΠΛΑΝΟ</strong></td>
+            <td style="font-size:11px;color:var(--text-muted);">VWCE+EXUS+EUNA+4GLD+ΕΛΛ</td>
+            <td><strong style="color:var(--accent);">~75 τεμ.</strong></td>
+            <td><strong style="color:var(--green);">€1.350</strong></td>
+            <td colspan="8" style="font-size:11px;color:var(--text-muted);">+ VUAA 2 τεμ. (~€260) = <strong>€1.610/μήνα</strong> σύνολο</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
+
+  <!-- KPI Feed Note -->
+  <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;">📌 Πώς λειτουργεί — αγορές σε τεμάχια</div>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.9;">
+      <strong style="color:var(--text-primary);">🛒 Βήμα 1 — Εκτέλεση αγορών (Trade Republic / Πειραιώς):</strong> Αγοράζεις τα τεμάχια που δείχνει ο παραπάνω πίνακας. Π.χ. Δεκέμβριος: 2 VWCE + 10 EXUS + 62 EUNA + 1 4GLD + 2 VUAA + €150 ελληνικές. Το ποσό €/μήνα είναι <em>οδηγός κλίμακας</em> — αγοράζεις <strong>τεμάχια</strong>, όχι ακριβές ποσό σε €.<br>
+      <strong style="color:var(--text-primary);">📝 Βήμα 2 — Καταχώριση τεμαχίων στο dashboard:</strong> "Αγορά/Πώληση" → ticker → αριθμός τεμαχίων που αγόρασες. Ενημερώνονται αυτόματα: συνολικά τεμάχια, αξία, κατανομή, P&L.<br>
+      <strong style="color:var(--text-primary);">💱 Βήμα 3 — Ενημέρωση τιμών:</strong> Ενημερώνεις τιμές μια φορά τον μήνα (ή όποτε θέλεις) → ανανεώνεται η αξία portfolio.<br>
+      <strong style="color:var(--gold);">⏱️ Συνολικός χρόνος: ~3–5 λεπτά/μήνα.</strong> Δεν υπάρχει broker API — όλα χειροκίνητα μετά τις αγορές.
+    </div>
+  </div>
+
+  <!-- Αιτιολόγηση επιλογών -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:20px;">
+    <div style="font-size:14px;font-weight:800;color:var(--text-primary);margin-bottom:14px;">🔎 Αιτιολόγηση Επιλογών (v6)</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">
+      <div><strong style="color:var(--accent);">VWCE (18/20):</strong> MS/Goldman: S&P 8.700 (+14–15%), Europe +15%, STOXX ~9%. Παγκόσμια διασπορά σε ένα ETF — βασικός πυλώνας.</div>
+      <div><strong style="color:var(--accent);">EXUS (18/20):</strong> Ευρώπη MS +15%/Goldman ~9%, Ιαπωνία Goldman ~15%/MS +22%. Τέλεια fit: καλύπτει το κενό εκτός ΗΠΑ χωρίς επικάλυψη.</div>
+      <div><strong style="color:var(--accent);">EUNA (18/20):</strong> Carry ~3–3,5%, EUR hedged. Αντισταθμίζει equity volatility. Fit 10/10 γιατί δεν έχεις αρκετά bonds.</div>
+      <div><strong style="color:#f59e0b);">4GLD (15/20):</strong> Goldman τέλος 2027 $4.650–4.800 (+15%). Γεωπολιτικό hedge, inflation store.</div>
+      <div><strong style="color:var(--gold);">Ελληνικές (14/20):</strong> Τιμές-στόχοι analysts: περιθώριο ~22–36% + μέρισμα ~3%. Fit 6/10 γιατί ήδη βαριά θέση (€61k).</div>
+      <div><strong style="color:var(--text-muted);">VUAA (12/20 — extra):</strong> Fit 4/10: ήδη ~€43k ΗΠΑ exposure (VUAA + NVDA + MSFT). 2 τεμ./μήνα μόνο για συνέχεια DCA.</div>
+      <div style="padding-top:6px;border-top:1px solid var(--border);"><strong style="color:var(--red);">❌ Εκτός πλάνου:</strong> EUNN (καλύπτεται από EXUS) · SPYW (καλύπτεται από EXUS) · EUN5 (έχεις ήδη ΓΕΚ ΤΕΡΝΑ/ΑΚΤΩΡ bonds) · Realty Income (€36/έτος μέρισμα αμελητέο — κράτα ό,τι έχεις)</div>
+    </div>
+  </div>
+
 </div>
 
 </div> <!-- /main -->
@@ -1843,12 +2069,13 @@ const perfSnapshots = [
 
 // Asset allocation targets
 const targetAllocation = {
-  'Greek Stocks': 30,
-  'ETFs': 30,
-  'Foreign Stocks': 15,
-  'Crypto': 12,
-  'Bonds': 10,
-  'Cash': 3
+  'Greek Stocks': 27,
+  'ETFs': 31,
+  'Foreign Stocks': 12,
+  'Crypto': 10,
+  'Bonds': 15,
+  'Gold': 5,
+  'Cash': 0  // Cash: στόχος ≥€10.000 αύξηση/χρόνο (όχι % — ενημέρωνε CASH_VAL στο buildAllocation)
 };
 
 // ============================================================
@@ -2237,18 +2464,24 @@ function getCategoryValues() {
     else if(h.cat==='Stock-US') cats['Foreign Stocks'] += h.value;
     else if(h.cat==='Crypto') cats['Crypto'] += h.value;
     else if(h.cat==='Bond') cats['Bonds'] += h.value;
+    else if(h.cat==='Gold') cats['Gold'] += h.value;
   });
   return cats;
 }
 
 function buildAllocation() {
   const cats = getCategoryValues();
+  const CASH_VAL = 43000; // ενημέρωσε χειροκίνητα όταν αλλάζει το cash σου
+  // Cash εκτός % — όλες οι κατηγορίες υπολογίζονται επί του investment portfolio μόνο
   const total = Object.values(cats).reduce((s,v)=>s+v,0);
+
   const barContainer = document.getElementById('currentAllocBars');
   barContainer.innerHTML = '';
-  const colors = {'Greek Stocks':'#3b82f6','ETFs':'#8b5cf6','Foreign Stocks':'#a78bfa','Crypto':'#f59e0b','Bonds':'#10b981','Cash':'#64748b'};
+  const colors = {'Greek Stocks':'#3b82f6','ETFs':'#8b5cf6','Foreign Stocks':'#a78bfa','Crypto':'#f59e0b','Bonds':'#10b981','Gold':'#d97706'};
 
+  // Bars — επενδυτικές κατηγορίες (χωρίς Cash)
   Object.entries(cats).forEach(([cat,val]) => {
+    if (!val && cat === 'Gold') return; // κρύψε Gold αν μηδέν
     const pct = total > 0 ? (val/total*100) : 0;
     const target = targetAllocation[cat] || 0;
     const diff = pct - target;
@@ -2257,7 +2490,7 @@ function buildAllocation() {
         <div class="progress-header">
           <span>${cat}</span>
           <span style="color:${Math.abs(diff)>3?(diff>0?'var(--red)':'var(--yellow)'):'var(--green)'}">
-            ${fmt(pct,1)}% <span style="color:var(--text-muted);font-size:10px;">(Στόχος: ${target}%)</span>
+            ${fmt(pct,1)}% <span style="color:var(--text-muted);font-size:10px;">(Στόχος: ${target>0?target+'%':'TBD'})</span>
           </span>
         </div>
         <div class="progress-bar">
@@ -2265,25 +2498,56 @@ function buildAllocation() {
         </div>
       </div>`;
   });
+  // Cash bar — ξεχωριστά, χωρίς % στόχο
+  const cashPct = total > 0 ? (CASH_VAL/(total+CASH_VAL)*100) : 0;
+  barContainer.innerHTML += `
+    <div class="progress-row" style="opacity:0.7;border-top:1px dashed var(--border);padding-top:8px;margin-top:4px;">
+      <div class="progress-header">
+        <span>Cash <span style="font-size:10px;color:var(--text-muted)">(εκτός % allocation)</span></span>
+        <span style="color:var(--text-muted);">${fmtEur(CASH_VAL)} <span style="font-size:10px;">(Στόχος: ≥€10k αύξηση/χρόνο)</span></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${Math.min(cashPct/40*100,100)}%;background:#64748b"></div>
+      </div>
+    </div>`;
 
+  // KPI elements για Cash
+  const kpiEl = document.getElementById('kpi-cash-pct');
+  if (kpiEl) kpiEl.textContent = fmtEur(CASH_VAL);
+  const cvEl = document.getElementById('alloc-cash-val');
+  if (cvEl) cvEl.textContent = fmtEur(CASH_VAL);
+  const cpEl = document.getElementById('alloc-cash-pct');
+  if (cpEl) cpEl.textContent = fmt(cashPct,1) + '%';
+
+  // Table allocBody — επενδυτικές κατηγορίες μόνο
   const tbody = document.getElementById('allocBody');
   tbody.innerHTML = '';
-  [...Object.entries(cats), ['Cash', 43000]].forEach(([cat, val]) => {
-    const totalWithCash = total + 43000;
-    const pct = totalWithCash > 0 ? (val/totalWithCash*100) : 0;
+  Object.entries(cats).forEach(([cat, val]) => {
+    const pct = total > 0 ? (val/total*100) : 0;
     const target = targetAllocation[cat] || 0;
     const diff = pct - target;
-    const amtNeeded = diff < 0 ? Math.abs((target-pct)/100 * totalWithCash) : 0;
+    const amtNeeded = diff < 0 ? Math.abs((target-pct)/100 * total) : 0;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${cat}</strong></td>
       <td>${fmt(pct,1)}%</td>
-      <td>${target}%</td>
+      <td>${target > 0 ? target+'%' : 'TBD'}</td>
       <td class="${Math.abs(diff)<2?'up':diff>0?'down':'up'}" style="font-weight:600;">${diff>=0?'+':''}${fmt(diff,1)}%</td>
       <td>${amtNeeded>100?'Αγορά '+fmtEur(Math.round(amtNeeded)):'✅ OK'}</td>
       <td style="font-size:11px;color:var(--text-muted)">${diff>3?'Overweight':diff<-3?'Underweight':'In range'}</td>`;
     tbody.appendChild(tr);
   });
+  // Cash row — ξεχωριστά στο τέλος του πίνακα
+  const cashTr = document.createElement('tr');
+  cashTr.style.cssText = 'border-top:2px dashed var(--border);opacity:0.8;';
+  cashTr.innerHTML = `
+    <td><strong>Cash</strong> <span style="font-size:10px;color:var(--text-muted)">(εκτός %)</span></td>
+    <td style="color:var(--text-muted);">${fmtEur(CASH_VAL)}</td>
+    <td>≥€10k/χρόνο</td>
+    <td>—</td>
+    <td>${CASH_VAL >= 43000 ? '✅ OK' : '⬆️ Αύξηση'}</td>
+    <td style="font-size:11px;color:var(--text-muted)">Εκτός allocation %</td>`;
+  tbody.appendChild(cashTr);
 }
 
 // ============================================================
@@ -3235,11 +3499,11 @@ function openReModal(type) {
   document.getElementById('re-modal-label').value = months[now.getMonth()] + ' ' + now.getFullYear();
   if (type === 'acharnon') {
     document.getElementById('re-modal-title').textContent = '💶 Είσπραξη Ενοικίου — Αχαρνών';
-    document.getElementById('re-modal-label-lbl').textContent = 'Μήνας ενοικίου';
+    document.getElementById('re-modal-label-lbl').textContent = 'Μήνας ενοικίου (π.χ. Νοέμβριος 2026)';
     document.getElementById('re-modal-expense-row').style.display = 'none';
   } else {
     document.getElementById('re-modal-title').textContent = '💰 Καταχώριση — Αποθεματικό Ιλίου';
-    document.getElementById('re-modal-label-lbl').textContent = 'Περιγραφή';
+    document.getElementById('re-modal-label-lbl').textContent = 'Αιτιολογία (π.χ. Νοέμβριος 2026 / ΕΝΦΙΑ)';
     document.getElementById('re-modal-expense-row').style.display = '';
     document.getElementById('re-modal-kind').value = 'saving';
   }
@@ -3448,8 +3712,8 @@ function backupAll() {
     const reRows = [['🏠 Ακίνητα — ' + timeStr],[],
       ['Ακίνητο','Κατάσταση','Σημείωση'],
       ['Αχαρνών','Μισθωμένο','€170/μήνα μερίδιο Βασίλη · Κόστος €6.458 · Αποσβέστηκε €1.190'],
-      ['Ίλιον (Εκτόρος 85)','Διαπραγμάτευση DoValue','Χρέος €77k · Αποθεματικό €3.750 · +€375/μήνα'],
-      ['Πετρούπολη','Ιδιοκατοίκηση','Κύρια κατοικία'],
+      ['Ίλιον (Εκτόρος 55τμ)','Διαπραγμάτευση DoValue','Χρέος €77k · Αποθεματικό €3.750 · +€375/μήνα'],
+
       [],
       ['Αχαρνών — Απόσβεση'],
       ['Συνολικό Κόστος (€)','Αποσβέστηκε (€)','Υπόλοιπο (€)','Μήνες ακόμα','Yield post-απόσβεση'],
@@ -3458,10 +3722,22 @@ function backupAll() {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(reRows), '🏠 Ακίνητα');
 
     // ── TAB: Strategy ──
-    const stratRows = [['🏔️ Strategy & FIRE — ' + timeStr],[],
-      ['Στόχος Allocation','Τρέχον %','Στόχος %'],
-      ['Greek Stocks','—','30%'],['ETF','—','30%'],['Foreign Stocks','—','15%'],
-      ['Crypto','—','12%'],['Bonds','—','10%'],['Cash','—','3%'],
+    const stratRows = [['🏔️ Στρατηγική 2027 — ' + timeStr],[],
+      ['Κατηγορία','Τρέχον %','Στόχος %','Απόκλιση'],
+      ['Ελληνικές','43,3%','27%','-16,3%'],
+      ['ETF','9,7%','31%','+21,3%'],
+      ['Ξένες Μετοχές','20,6%','12%','-8,6%'],
+      ['Crypto','15,6%','10%','-5,6%'],
+      ['Ομόλογα','10,8%','15%','+4,2%'],
+      ['Χρυσός','0%','5%','+5%'],
+      [],[],
+      ['Monthly Picks 2027','Πλατφόρμα','€/μήνα','Σκορ/20'],
+      ['VWCE','Trade Republic','€400','18'],
+      ['EXUS','Trade Republic','€400','18'],
+      ['EUNA','Trade Republic','€300','18'],
+      ['4GLD','Trade Republic','€100','15'],
+      ['Ελληνικές (ροτάρισμα)','Πειραιώς','€150','14'],
+      ['VUAA (extra 2 τεμ.)','Trade Republic','~€260','12'],
     ];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(stratRows), '🏔️ Strategy');
 
