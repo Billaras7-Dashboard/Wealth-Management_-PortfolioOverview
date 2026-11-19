@@ -2471,7 +2471,7 @@ function getCategoryValues() {
 
 function buildAllocation() {
   const cats = getCategoryValues();
-  const CASH_VAL = 43000; // ενημέρωσε χειροκίνητα όταν αλλάζει το cash σου
+  const CASH_VAL = getSavings().reduce((s,a)=>s+a.balance,0); // αυτόματα από tab Savings
   // Cash εκτός % — όλες οι κατηγορίες υπολογίζονται επί του investment portfolio μόνο
   const total = Object.values(cats).reduce((s,v)=>s+v,0);
 
@@ -2545,7 +2545,7 @@ function buildAllocation() {
     <td style="color:var(--text-muted);">${fmtEur(CASH_VAL)}</td>
     <td>≥€10k/χρόνο</td>
     <td>—</td>
-    <td>${CASH_VAL >= 43000 ? '✅ OK' : '⬆️ Αύξηση'}</td>
+    <td>${CASH_VAL > 0 ? '✅ OK' : '⬆️ Αύξηση'}</td>
     <td style="font-size:11px;color:var(--text-muted)">Εκτός allocation %</td>`;
   tbody.appendChild(cashTr);
 }
@@ -3045,7 +3045,8 @@ function saveSavings() {
   if (dateEl) dateEl.textContent = now;
   buildSavings();
   drawCashPieChart();
-  showNotification('✅ Savings αποθηκεύτηκαν!');
+  buildAllocation(); // ανανέωσε Allocation με νέο CASH_VAL
+  showNotification('✅ Savings αποθηκεύτηκαν! Allocation ανανεώθηκε.');
 }
 function openSavModal() { document.getElementById('savModal').classList.add('open'); }
 function closeSavModal() { document.getElementById('savModal').classList.remove('open'); }
