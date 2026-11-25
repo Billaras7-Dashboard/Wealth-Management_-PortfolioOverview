@@ -1091,6 +1091,8 @@
         </div></div></div>
   </div>
 </div>
+</div>
+</div>
 
 <!-- ======================== HOLDINGS TAB ======================== -->
 <div id="tab-holdings" class="tab-content">
@@ -5098,43 +5100,131 @@ function setLastUpdated() {
 // ============================================================
 // PRICES TAB
 // ============================================================
+// Default prices for manual holdings (buy price as initial current price)
+const MANUAL_DEFAULT_PRICES = {
+  'METKA': 10.00,         // IPO price €10.00, 148 τεμ.
+  'ANTHROPIC AI': 71.58   // Buy price $71.58 → ~€65.98, 25 τεμ. (Trade Republic)
+};
+
 const priceGroups = {
-  'gr':     { label:'ΧΑ',  ccy:'EUR', tickers:['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΑΒΑΞ','ALWN','ΜΤΛΝ','CMFC'] },
-  'us':     { label:'USA', ccy:'USD', tickers:['NVDA','MSFT','BABA','META','AMZN','SOFI','INTC','C','SCHD','FCX','TDOC'] },
-  'etf':    { label:'ETF', ccy:'EUR', tickers:['VUAA','VWCE','VUAA.TR','O.TR','AGGG','BYD'] },
-  'bond':   { label:'Bond',ccy:'EUR', tickers:['ΓΕΚ Bond','AKTOR Bond'] },
+  'gr':     { label:'ΧΑ',  ccy:'EUR', tickers:['ΓΕΚΤΕΡΝΑ','ΔΕΗ','AKTR','ΕΤΕ','ΠΕΙΡ','ΑΛΦΑ','ΑΒΑΞ','ALWN','ΜΤΛΝ','CMFC','METKA'] },
+  'us':     { label:'USA', ccy:'USD', tickers:['NVDA','MSFT','BABA','META','AMZN','SOFI','INTC','C','SCHD','FCX','TDOC','ANTHROPIC AI'] },
+  'etf':    { label:'ETF', ccy:'EUR', tickers:['VUAA','VWCE','O.TR','AGGG','BYD'] },
+  'bond':   { label:'Bond',ccy:'EUR', tickers:[] },
   'crypto': { label:'Crypto',ccy:'EUR',tickers:['ETH','WBETH','ADA','SOL','MANA','BEAMX','JASMY','COTI','ETH (BP)','ADA (BP)','NEO','SHIB','ETH (CDC)','ADA (CDC)','SYN','POL','NEO (CDC)','FLOKI','GAS','STRAX','XRP (BP)'] }
+};
+
+// Consolidated multi-ticker cards: one input updates multiple tickers
+const consolidatedCards = {
+  'VUAA': {
+    tickers: ['VUAA','VUAA.TR'],
+    label: 'VUAA EUR',
+    name: 'Vanguard S&P500 UCITS Acc',
+    note: '📌 Ενημερώνει: Piraeus (78τμχ) + TR (25τμχ)',
+    avgNote: (h1, h2) => `Avg Piraeus: €${h1?h1.avgCost.toFixed(2):'—'} · TR: €${h2?h2.avgCost.toFixed(2):'—'}`
+  },
+  'ETH': {
+    tickers: ['ETH','ETH (BP)','ETH (CDC)'],
+    label: 'ETH EUR',
+    name: 'Ethereum — όλες πλατφόρμες',
+    note: '📌 Ενημερώνει: Binance + Bitpanda + CDC'
+  },
+  'ADA': {
+    tickers: ['ADA','ADA (BP)','ADA (CDC)'],
+    label: 'ADA EUR',
+    name: 'Cardano — όλες πλατφόρμες',
+    note: '📌 Ενημερώνει: Binance + Bitpanda + CDC'
+  },
+  'NEO': {
+    tickers: ['NEO','NEO (CDC)'],
+    label: 'NEO EUR',
+    name: 'NEO — όλες πλατφόρμες',
+    note: '📌 Ενημερώνει: Binance + CDC'
+  }
 };
 
 function buildPricesTab() {
   Object.entries(priceGroups).forEach(([groupId, group]) => {
     const container = document.getElementById('pgrid-'+groupId);
     if(!container) return;
+    // skip bond — has custom static HTML with coupon panels
+    if(groupId === 'bond') return;
     container.innerHTML = '';
     // deduplicate tickers in case of duplicates
     const seen = new Set();
+    // track which tickers were handled by consolidated cards
+    const consolidatedHandled = new Set();
+    Object.values(consolidatedCards).forEach(cc => cc.tickers.forEach(t => consolidatedHandled.add(t)));
+
     group.tickers.forEach(t => {
       if(seen.has(t)) return; seen.add(t);
-      const h = holdings.find(h=>h.ticker===t);
-      if(!h) return;
       const ccy = group.ccy || 'EUR';
       const sym = ccy==='USD'?'$':'€';
-      const pct = h.avgCost > 0 ? ((h.price - h.avgCost)/h.avgCost*100) : 0;
+      const isCrypto = groupId==='crypto';
+      const decimals = isCrypto ? 4 : 2;
+
+      // Check if this is a consolidated card master
+      const cc = consolidatedCards[t];
+      if(cc) {
+        // find primary holding for price
+        const h = holdings.find(h=>h.ticker===t);
+        const price = h ? h.price : 0;
+        const pct = h && h.avgCost > 0 ? ((h.price - h.avgCost)/h.avgCost*100) : 0;
+        const plClass = pct>=0?'up':'down';
+        const safeId = 'pc_'+t.replace(/[^a-zA-Z0-9]/g,'_');
+        const onchange = cc.tickers.map(tk => `applyPrice('${tk}',this.value)`).join(';');
+        // Skip duplicates from other tickers in this group that are part of this consolidated card
+        cc.tickers.slice(1).forEach(tk => seen.add(tk));
+        // avg note
+        let avgText = '';
+        if(cc.avgNote) {
+          const hs = cc.tickers.map(tk => holdings.find(h=>h.ticker===tk));
+          avgText = cc.avgNote(...hs);
+        } else {
+          const h2 = h;
+          avgText = h2 ? `Avg: ${sym}${h2.avgCost.toFixed(decimals)}` : '';
+        }
+        const card = document.createElement('div');
+        card.className = 'price-card';
+        card.innerHTML = `
+          <div class="pc-ticker">${cc.label||t} <span style="font-size:9px;color:var(--text-muted);font-weight:400;">${ccy}</span></div>
+          <div class="pc-name">${cc.name||t}</div>
+          ${cc.note ? `<div style="font-size:9px;color:var(--accent);margin-bottom:4px;">${cc.note}</div>` : ''}
+          <div class="pc-row">
+            <span class="pc-label">Τιμή (${sym})</span>
+            <input class="pc-input" id="${safeId}" type="number" step="${isCrypto?'0.0001':'0.01'}" value="${price.toFixed(decimals)}" onchange="${onchange}">
+          </div>
+          <div class="pc-row">
+            <span class="pc-avg">${avgText}</span>
+            <span class="pc-pl ${plClass}" id="${safeId}_pl">${pct>=0?'+':''}${pct.toFixed(1)}%</span>
+          </div>`;
+        container.appendChild(card);
+        return;
+      }
+
+      // Skip tickers that are part of a consolidated card (not the master)
+      if(consolidatedHandled.has(t) && !consolidatedCards[t]) return;
+
+      // Normal card
+      const h = holdings.find(h=>h.ticker===t);
+      // For manual holdings (not in hardcoded list), use MANUAL_DEFAULT_PRICES as fallback
+      const price = h ? h.price : (MANUAL_DEFAULT_PRICES[t] || 0);
+      const avgCost = h ? h.avgCost : (MANUAL_DEFAULT_PRICES[t] || 0);
+      const name = h ? h.name : t;
+      const pct = avgCost > 0 ? ((price - avgCost)/avgCost*100) : 0;
       const plClass = pct>=0?'up':'down';
       const safeId = 'pc_'+t.replace(/[^a-zA-Z0-9]/g,'_');
-      const isCrypto = groupId==='crypto';
-      const decimals = isCrypto ? (h.price < 0.01 ? 6 : 4) : 2;
       const card = document.createElement('div');
       card.className = 'price-card';
       card.innerHTML = `
         <div class="pc-ticker">${t} <span style="font-size:9px;color:var(--text-muted);font-weight:400;">${ccy}</span></div>
-        <div class="pc-name" title="${h.name}">${h.name}</div>
+        <div class="pc-name" title="${name}">${name}</div>
         <div class="pc-row">
           <span class="pc-label">Τιμή (${sym})</span>
-          <input class="pc-input" id="${safeId}" type="number" step="${isCrypto?'0.000001':'0.01'}" value="${h.price.toFixed(decimals)}" onchange="applyPrice('${t}',this.value)">
+          <input class="pc-input" id="${safeId}" type="number" step="${isCrypto?'0.000001':'0.01'}" value="${price.toFixed(decimals)}" onchange="applyPrice('${t}',this.value)">
         </div>
         <div class="pc-row">
-          <span class="pc-avg">Avg: ${sym}${h.avgCost.toFixed(2)}</span>
+          <span class="pc-avg">Avg: ${sym}${avgCost.toFixed(decimals)}</span>
           <span class="pc-pl ${plClass}" id="${safeId}_pl">${pct>=0?'+':''}${pct.toFixed(1)}%</span>
         </div>`;
       container.appendChild(card);
